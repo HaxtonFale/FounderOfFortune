@@ -34,5 +34,10 @@ public class MajorArcanaStacks {
         throw new ArgumentException("Card value ineligible for ascension", nameof(card));
     }
 
-    public Tuple<MajorArcana?, MajorArcana?> TopCards => new(_left, _right);
+    public MajorArcanaStacks AscendRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
+
+    public bool CanAscend(MajorArcana card) {
+        return (_left == null && card.Value == 0) || (_left != null && card.Value == _left.Value.Value + 1) ||
+               (_right == null && card.Value == 21) || (_right != null && card.Value == _right.Value.Value + 1);
+    }
 }

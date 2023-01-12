@@ -18,7 +18,7 @@ public readonly struct Card : IEquatable<Card> {
         _card = card;
     }
 
-    public bool IsAdjacent(Card other) {
+    public bool IsAdjacentTo(Card other) {
         if (IsMajorArcana && other.IsMajorArcana) {
             return Math.Abs(AsMajorArcana.Value - other.AsMajorArcana.Value) == 1;
         }
@@ -30,9 +30,7 @@ public readonly struct Card : IEquatable<Card> {
         return false;
     }
 
-    public override string ToString() {
-        return IsMajorArcana ? AsMajorArcana.ToString() : AsMinorArcana.ToString();
-    }
+    public override string ToString() => IsMajorArcana ? AsMajorArcana.ToString() : AsMinorArcana.ToString();
 
     #region IEquatable<T>
 
@@ -42,26 +40,20 @@ public readonly struct Card : IEquatable<Card> {
         return false;
     }
 
-    public override bool Equals(object? obj) {
-        return obj is Card other && Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is Card other && Equals(other);
 
     public override int GetHashCode() => _card.GetHashCode();
 
-    public static bool operator ==(Card left, Card right) {
-        return left.Equals(right);
-    }
+    public static bool operator ==(Card left, Card right) => left.Equals(right);
 
-    public static bool operator !=(Card left, Card right) {
-        return !left.Equals(right);
-    }
+    public static bool operator !=(Card left, Card right) => !left.Equals(right);
 
     #endregion
 
     #region Conversion operators
 
-    public static explicit operator Card(MajorArcana major) => new(major);
-    public static explicit operator Card(MinorArcana minor) => new(minor);
+    public static implicit operator Card(MajorArcana major) => new(major);
+    public static implicit operator Card(MinorArcana minor) => new(minor);
 
     #endregion
 }

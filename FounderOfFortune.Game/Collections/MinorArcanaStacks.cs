@@ -25,4 +25,8 @@ public class MinorArcanaStacks {
     }
 
     public MinorArcana TopCard(Suit suit) => _stacks[suit].TopCard;
+
+    public bool CanAscend(MinorArcana card) => _stacks[card.Suit].CanAscend(card);
+
+    public MinorArcanaStacks AscendRange(IEnumerable<MinorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
 }

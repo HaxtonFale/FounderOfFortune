@@ -11,60 +11,38 @@ public readonly struct MajorArcana : IComparable<MajorArcana>, IComparable, IEqu
         Value = value;
     }
 
-    public override string ToString() {
-        return Value != 0 ? Value.ToRoman() : "0";
-    }
+    public override string ToString() => Value == 0 ? "0" : Value.ToRoman();
 
     #region IComparable
 
-    public int CompareTo(MajorArcana other) {
-        return Value.CompareTo(other.Value);
-    }
+    public int CompareTo(MajorArcana other) => Value.CompareTo(other.Value);
 
     public int CompareTo(object? obj) {
         if (ReferenceEquals(null, obj)) return 1;
         return obj is MajorArcana other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(MajorArcana)}");
     }
 
-    public static bool operator <(MajorArcana left, MajorArcana right) {
-        return left.CompareTo(right) < 0;
-    }
+    public static bool operator <(MajorArcana left, MajorArcana right) => left.CompareTo(right) < 0;
 
-    public static bool operator >(MajorArcana left, MajorArcana right) {
-        return left.CompareTo(right) > 0;
-    }
+    public static bool operator >(MajorArcana left, MajorArcana right) => left.CompareTo(right) > 0;
 
-    public static bool operator <=(MajorArcana left, MajorArcana right) {
-        return left.CompareTo(right) <= 0;
-    }
+    public static bool operator <=(MajorArcana left, MajorArcana right) => left.CompareTo(right) <= 0;
 
-    public static bool operator >=(MajorArcana left, MajorArcana right) {
-        return left.CompareTo(right) >= 0;
-    }
+    public static bool operator >=(MajorArcana left, MajorArcana right) => left.CompareTo(right) >= 0;
 
     #endregion
 
     #region IEquatable
 
-    public bool Equals(MajorArcana other) {
-        return Value == other.Value;
-    }
+    public bool Equals(MajorArcana other) => Value == other.Value;
 
-    public override bool Equals(object? obj) {
-        return obj is MajorArcana other && Equals(other);
-    }
+    public override bool Equals(object? obj) => obj is MajorArcana other && Equals(other);
 
-    public override int GetHashCode() {
-        return Value;
-    }
+    public override int GetHashCode() => Value;
 
-    public static bool operator ==(MajorArcana left, MajorArcana right) {
-        return left.Equals(right);
-    }
+    public static bool operator ==(MajorArcana left, MajorArcana right) => left.Equals(right);
 
-    public static bool operator !=(MajorArcana left, MajorArcana right) {
-        return !left.Equals(right);
-    }
+    public static bool operator !=(MajorArcana left, MajorArcana right) => !left.Equals(right);
 
     #endregion
 

@@ -28,17 +28,29 @@ public class TableauStack {
         var count = Cards.Count - 1;
         do {
             output = output.Add(Cards[count--]);
-        } while (count >= 0 && Cards[count].IsAdjacent(output.Last()));
+        } while (count >= 0 && Cards[count].IsAdjacentTo(output.Last()));
         
         stack = new TableauStack(Cards.Take(count + 1).ToImmutableList());
         return output;
     }
 
+    public Card TakeCard(out TableauStack stack)
+    {
+        if (Cards.IsEmpty) throw new InvalidOperationException("Cannot take a card from empty stack");
+        stack = new TableauStack(Cards.SkipLast(1).ToImmutableList());
+        return Cards.Last();
+    }
+
     public TableauStack PlaceCard(Card card) {
-        if (TopCard == null || TopCard.Value.IsAdjacent(card)) {
+        if (TopCard == null || TopCard.Value.IsAdjacentTo(card)) {
             return new TableauStack(Cards.Add(card));
         }
 
         throw new ArgumentException($"Cannot place card on top of stack ({Cards.Last()}", nameof(card));
+    }
+
+    public TableauStack PlaceRange(IEnumerable<Card> cards)
+    {
+        return cards.Aggregate(this, (current, card) => current.PlaceCard(card));
     }
 }

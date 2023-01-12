@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33122.133
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FounderOfFortune.Game", "FounderOfFortune.Game\FounderOfFortune.Game.csproj", "{F1ADAB54-7563-456B-B0F1-5CF5B281FBB0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FounderOfFortune.Game.Test", "FounderOfFortune.Game.Test\FounderOfFortune.Game.Test.csproj", "{EDFE3D0A-C6A1-4BF8-AE80-FD0B277692F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1ADAB54-7563-456B-B0F1-5CF5B281FBB0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1ADAB54-7563-456B-B0F1-5CF5B281FBB0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1ADAB54-7563-456B-B0F1-5CF5B281FBB0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1ADAB54-7563-456B-B0F1-5CF5B281FBB0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EDFE3D0A-C6A1-4BF8-AE80-FD0B277692F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EDFE3D0A-C6A1-4BF8-AE80-FD0B277692F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EDFE3D0A-C6A1-4BF8-AE80-FD0B277692F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EDFE3D0A-C6A1-4BF8-AE80-FD0B277692F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2D53327D-E7B6-4E8F-8DBD-8917A158BE5C}
+	EndGlobalSection
+EndGlobal

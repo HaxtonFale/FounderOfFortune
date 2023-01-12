@@ -8,24 +8,21 @@ public class MinorArcanaStacks {
 
     public MinorArcanaStacks() {
         _stacks = ImmutableDictionary<Suit, MinorArcanaStack>.Empty
-            .Add(Suit.Coins, new MinorArcanaStack(Suit.Coins))
-            .Add(Suit.Goblets, new MinorArcanaStack(Suit.Goblets))
-            .Add(Suit.Swords, new MinorArcanaStack(Suit.Swords))
-            .Add(Suit.Wands, new MinorArcanaStack(Suit.Wands));
+            .Add(Suit.Coins, new MinorArcanaStack(new MinorArcana(Suit.Coins, 1)))
+            .Add(Suit.Goblets, new MinorArcanaStack(new MinorArcana(Suit.Goblets, 1)))
+            .Add(Suit.Swords, new MinorArcanaStack(new MinorArcana(Suit.Swords, 1)))
+            .Add(Suit.Wands, new MinorArcanaStack(new MinorArcana(Suit.Wands, 1)));
     }
 
     private MinorArcanaStacks(ImmutableDictionary<Suit, MinorArcanaStack> stacks) {
         _stacks = stacks;
     }
 
-    public bool TryAscend(MinorArcana card, out MinorArcanaStacks stacks) {
+    public MinorArcanaStacks Ascend(MinorArcana card) {
         var stack = _stacks[card.Suit];
-        if (stack.TryAscend(card, out var newStack)) {
-            stacks = new MinorArcanaStacks(_stacks.SetItem(card.Suit, newStack));
-            return true;
-        }
-
-        stacks = this;
-        return false;
+        var newStack = stack.Ascend(card);
+        return new MinorArcanaStacks(_stacks.SetItem(card.Suit, newStack));
     }
+
+    public MinorArcana TopCard(Suit suit) => _stacks[suit].TopCard;
 }

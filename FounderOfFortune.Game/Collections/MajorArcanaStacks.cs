@@ -3,32 +3,36 @@
 namespace FounderOfFortune.Game.Collections;
 
 public class MajorArcanaStacks {
-    private readonly int _left = -1;
-    private readonly int _right = 22;
+    private readonly MajorArcana? _left;
+    private readonly MajorArcana? _right;
 
-    public MajorArcanaStacks() { }
+    public MajorArcanaStacks() {
+        _left = null;
+        _right = null;
+    }
 
-    private MajorArcanaStacks(int left, int right)
-    {
+    private MajorArcanaStacks(MajorArcana? left, MajorArcana? right) {
         _left = left;
         _right = right;
     }
 
-    public bool TryAscend(MajorArcana card, out MajorArcanaStacks stacks) {
+    public MajorArcanaStacks Ascend(MajorArcana card) {
         var success = false;
         var newLeft = _left;
-        if (card.Value == _left + 1) {
-            newLeft += 1;
+        if ((_left == null && card.Value == 0) || (_left != null && card.Value == _left.Value.Value + 1)) {
+            newLeft = card;
             success = true;
         }
 
         var newRight = _right;
-        if (card.Value == _right - 1) {
-            newRight -= 1;
+        if ((_right == null && card.Value == 21) || (_right != null && card.Value == _right.Value.Value + 1)) {
+            newRight = card;
             success = true;
         }
 
-        stacks = success ? new MajorArcanaStacks(newLeft, newRight) : this;
-        return success;
+        if (success) return new MajorArcanaStacks(newLeft, newRight);
+        throw new ArgumentException("Card value ineligible for ascension", nameof(card));
     }
+
+    public Tuple<MajorArcana?, MajorArcana?> TopCards => new(_left, _right);
 }

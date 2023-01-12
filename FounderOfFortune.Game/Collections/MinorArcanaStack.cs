@@ -3,27 +3,20 @@
 namespace FounderOfFortune.Game.Collections;
 
 public class MinorArcanaStack {
-    private readonly Suit _suit;
-    private readonly int _topCard = 1;
+    public readonly MinorArcana TopCard;
 
-    public MinorArcanaStack(Suit suit) {
-        _suit = suit;
+    public MinorArcanaStack(MinorArcana topCard) {
+        TopCard = topCard;
     }
 
-    private MinorArcanaStack(Suit suit, int topCard)
-    {
-        _suit = suit;
-        _topCard = topCard;
-    }
-    
-    public bool TryAscend(MinorArcana card, out MinorArcanaStack stack) {
-        if (card.Suit != _suit || card.Value != _topCard + 1)
-        {
-            stack = this;
-            return false;
+    public MinorArcanaStack Ascend(MinorArcana card) {
+        if (card.Suit != TopCard.Suit) {
+            throw new ArgumentException("Card suit mismatch", nameof(card));
+        }
+        if (card.Value != TopCard.Value + 1) {
+            throw new ArgumentException("Card value ineligible for ascension", nameof(card));
         }
 
-        stack = new MinorArcanaStack(_suit, _topCard + 1);
-        return true;
+        return new MinorArcanaStack(card);
     }
 }

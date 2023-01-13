@@ -18,7 +18,7 @@ public readonly struct BoardState {
         var newMajorArcanaStacks = majorArcanaStacks;
         var newMinorArcanaStacks = minorArcanaStacks;
         var newFreeCell = freeCell;
-        var newTableauStacks = tableauStacks.ToList();
+        var newTableauStacks = tableauStacks;
 
         var ascended = false;
         do {
@@ -31,14 +31,14 @@ public readonly struct BoardState {
                     newMajorArcanaStacks =
                         newMajorArcanaStacks.AscendRange(newTableauStacks[i]
                             .TakeCards(out var updatedStack).Select(c => c.AsMajorArcana));
-                    newTableauStacks[i] = updatedStack;
+                    newTableauStacks = newTableauStacks.SetItem(i, updatedStack);
                     ascended = true;
                 }
 
                 if (topCard.IsMinorArcana && newMinorArcanaStacks.CanAscend(topCard.AsMinorArcana) && newFreeCell == null) {
                     newMinorArcanaStacks = newMinorArcanaStacks.AscendRange(newTableauStacks[i]
                         .TakeCards(out var updatedStack).Select(c => c.AsMinorArcana));
-                    newTableauStacks[i] = updatedStack;
+                    newTableauStacks = newTableauStacks.SetItem(i, updatedStack);
                     ascended = true;
                 }
             }

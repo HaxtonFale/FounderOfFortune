@@ -97,7 +97,7 @@ public class TableauStackTests {
         var stack = new TableauStack(ImmutableList<Card>.Empty.Add(fourOfSwords));
 
         // Assert
-        Assert.Throws<ArgumentException>(() => stack.PlaceCard(threeOfCoins));
+        Assert.Throws<InvalidOperationException>(() => stack.PlaceCard(threeOfCoins));
     }
 
     [Fact]
@@ -135,6 +135,6 @@ public class TableauStackTests {
         var stack = new TableauStack(threeOfCoins);
 
         // Assert
-        Assert.Throws<ArgumentException>(() => stack.PlaceRange(cards));
+        Assert.Throws<InvalidOperationException>(() => stack.PlaceRange(cards));
     }
 }

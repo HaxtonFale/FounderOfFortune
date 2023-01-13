@@ -2,30 +2,60 @@
 
 namespace FounderOfFortune.Game.Collections;
 
+/// <summary>
+/// Represents the pair of major arcana stacks on the board.
+/// The stacks are a pair of slots that start empty but can take cards on either end until they meet in the middle.
+/// </summary>
+/// <remarks>
+/// Created as an immutable collection to make backtracking easier.
+/// </remarks>
 public class MajorArcanaStacks {
-    private readonly MajorArcana? _left;
-    private readonly MajorArcana? _right;
+    /// <summary>
+    /// The lower end of the stack.<br />
+    /// When empty, it accepts 0; otherwise, it will only take a card whose value is higher than it by 1.
+    /// </summary>
+    public readonly MajorArcana? Left;
+    /// <summary>
+    /// The higher end of the stack.<br />
+    /// When empty, it accepts 21; otherwise, it will only take a card whose value is lower than it by 1.
+    /// </summary>
+    public readonly MajorArcana? Right;
 
-    public MajorArcanaStacks() {
-        _left = null;
-        _right = null;
+    /// <summary>
+    /// Initializes a pair of stacks into empty state.
+    /// </summary>
+    internal MajorArcanaStacks() {
+        Left = null;
+        Right = null;
     }
 
-    private MajorArcanaStacks(MajorArcana? left, MajorArcana? right) {
-        _left = left;
-        _right = right;
+    /// <summary>
+    /// Initializes a pair of stacks into the specified state.
+    /// </summary>
+    /// <exception cref="ArgumentException">Thrown if <paramref name="left"/> is greater than <paramref name="right"/>.</exception>
+    internal MajorArcanaStacks(MajorArcana? left, MajorArcana? right) {
+        if (left > right) throw new ArgumentException("Left cannot be greater than right.");
+        Left = left;
+        Right = right;
     }
 
-    public MajorArcanaStacks Ascend(MajorArcana card) {
+    /// <summary>
+    /// Ascends a card to the stacks.
+    /// </summary>
+    /// <param name="card">The major arcana to ascend. Must be eligible for ascension, i.e. greater by 1 than <see cref="Left"/> or lower by 1 than <see cref="Right"/>.</param>
+    /// <returns>Updated pair of stacks after <paramref name="card"/> was ascended.</returns>
+    /// <exception cref="ArgumentException">Thrown if the given card is not eligible for ascension.</exception>
+    /// <seealso cref="CanAscend"/>
+    internal MajorArcanaStacks Ascend(MajorArcana card) {
         var success = false;
-        var newLeft = _left;
-        if ((_left == null && card.Value == 0) || (_left != null && card.Value == _left.Value.Value + 1)) {
+        var newLeft = Left;
+        if ((Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1)) {
             newLeft = card;
             success = true;
         }
 
-        var newRight = _right;
-        if ((_right == null && card.Value == 21) || (_right != null && card.Value == _right.Value.Value + 1)) {
+        var newRight = Right;
+        if ((Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1)) {
             newRight = card;
             success = true;
         }
@@ -34,10 +64,16 @@ public class MajorArcanaStacks {
         throw new ArgumentException("Card value ineligible for ascension", nameof(card));
     }
 
-    public MajorArcanaStacks AscendRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
+    /// <summary>
+    /// Ascends a streak of cards 
+    /// </summary>
+    /// <param name="cards"></param>
+    /// <returns></returns>
+    internal MajorArcanaStacks AscendRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
 
     public bool CanAscend(MajorArcana card) {
-        return (_left == null && card.Value == 0) || (_left != null && card.Value == _left.Value.Value + 1) ||
-               (_right == null && card.Value == 21) || (_right != null && card.Value == _right.Value.Value + 1);
+        if (Left != null && Right != null && Left == Right) return false;
+        return (Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1) ||
+               (Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1);
     }
 }

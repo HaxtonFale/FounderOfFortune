@@ -1,5 +1,8 @@
 ﻿namespace FounderOfFortune.Game.Model;
 
+/// <summary>
+/// Represents one of the minor arcana: cards valued from 1 to 13 (with Jack, Queen and King as the last three values) with one of the four <see cref="Suit"/>s.
+/// </summary>
 public readonly struct MinorArcana : IComparable<MinorArcana>, IComparable, IEquatable<MinorArcana>
 {
     public Suit Suit { get; }

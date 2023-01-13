@@ -2,6 +2,9 @@
 
 namespace FounderOfFortune.Game.Model;
 
+/// <summary>
+/// Represents one of the major arcana: named cards valued from 0 to 21.
+/// </summary>
 public readonly struct MajorArcana : IComparable<MajorArcana>, IComparable, IEquatable<MajorArcana>
 {
     public int Value { get; }

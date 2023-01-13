@@ -2,8 +2,13 @@
 
 namespace FounderOfFortune.Game.Model;
 
+/// <summary>
+/// Represents an arbitrary card that could be either a <see cref="MajorArcana"/> or <see cref="MinorArcana"/> as a wrapper around <see cref="OneOf{T0,T1}"/>.
+/// </summary>
 public readonly struct Card : IEquatable<Card> {
     private readonly OneOf<MajorArcana, MinorArcana> _card;
+    public readonly int Value;
+
     public bool IsMajorArcana => _card.IsT0;
     public bool IsMinorArcana => _card.IsT1;
 
@@ -12,12 +17,18 @@ public readonly struct Card : IEquatable<Card> {
 
     public Card(MajorArcana card) {
         _card = card;
+        Value = card.Value;
     }
 
     public Card(MinorArcana card) {
         _card = card;
+        Value = card.Value;
     }
 
+    /// <summary>
+    /// Checks adjacency, i.e. whether the cards can be placed on one another.
+    /// They must be both the same type of arcana, they must have a matching suit, and their values must differ by exactly 1.
+    /// </summary>
     public bool IsAdjacentTo(Card other) {
         if (IsMajorArcana && other.IsMajorArcana) {
             return Math.Abs(AsMajorArcana.Value - other.AsMajorArcana.Value) == 1;

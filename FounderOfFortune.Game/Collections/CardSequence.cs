@@ -17,10 +17,11 @@ public class CardSequence : IReadOnlyList<Card> {
 
     public IEnumerator<Card> GetEnumerator() {
         var cardValue = _initialCard.Value;
-        do {
-            yield return CreateAtOffset(cardValue - _initialCard.Value);
+        yield return _initialCard;
+        while (cardValue != _finalCardValue) {
             cardValue += Direction;
-        } while (cardValue != _finalCardValue);
+            yield return CreateAtOffset(cardValue - _initialCard.Value);
+        }
     }
 
     private Card CreateAtOffset(int offset) => IsMajorArcana ? new Card(_initialCard.AsMajorArcana + offset) : new Card(_initialCard.AsMinorArcana + offset);

@@ -43,6 +43,24 @@ public class TableauStackTests {
         Assert.Equal(cards, newStack.Cards);
     }
 
+    [Fact]
+    public void ThrowWhenTakingCardFromEmptyStack()
+    {
+        // Arrange
+        var stack = new TableauStack();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(() => stack.TakeCard(out _));
+    }
+
+    [Fact]
+    public void ThrowWhenTakingTakeCardsFromEmptyStack() {
+        // Arrange
+        var stack = new TableauStack();
+
+        // Assert
+        Assert.Throws<InvalidOperationException>(() => stack.TakeCards(out _));
+    }
 
     [Fact]
     public void PlaceAnyCardOnEmptyStack() {

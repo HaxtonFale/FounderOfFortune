@@ -5,7 +5,12 @@ VisualStudioVersion = 17.4.33122.133
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FounderOfFortune.Game", "FounderOfFortune.Game\FounderOfFortune.Game.csproj", "{F1ADAB54-7563-456B-B0F1-5CF5B281FBB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FounderOfFortune.Game.Test", "FounderOfFortune.Game.Test\FounderOfFortune.Game.Test.csproj", "{EDFE3D0A-C6A1-4BF8-AE80-FD0B277692F4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FounderOfFortune.Game.Test", "FounderOfFortune.Game.Test\FounderOfFortune.Game.Test.csproj", "{EDFE3D0A-C6A1-4BF8-AE80-FD0B277692F4}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B5E5BAA5-1994-406D-A597-DFA948895B73}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

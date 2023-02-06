@@ -28,9 +28,7 @@ public class CardSequence : IReadOnlyList<Card>, IEquatable<CardSequence> {
 
     #region IReadOnlyList
 
-    IEnumerator IEnumerable.GetEnumerator() {
-        return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     public int Count => Math.Abs(_initialCard.Value - _finalCardValue) + 1;
 

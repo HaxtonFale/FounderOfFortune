@@ -9,10 +9,10 @@ public class MinorArcanaStack : IEquatable<MinorArcanaStack> {
 
     public MinorArcanaStack Ascend(MinorArcana card) {
         if (card.Suit != TopCard.Suit) {
-            throw new ArgumentException("Card suit mismatch", nameof(card));
+            throw new InvalidOperationException("Card suit mismatch");
         }
         if (card != TopCard + 1) {
-            throw new ArgumentException("Card value ineligible for ascension", nameof(card));
+            throw new InvalidOperationException("Card value ineligible for ascension");
         }
 
         return new MinorArcanaStack(card);

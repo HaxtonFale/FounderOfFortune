@@ -45,7 +45,7 @@ public class TableauStackTests {
     }
 
     [Fact]
-    public void ThrowWhenTakingCardFromEmptyStack()
+    public void TakingCardFromEmptyStackThrows()
     {
         // Arrange
         var stack = new TableauStack();
@@ -58,7 +58,7 @@ public class TableauStackTests {
     }
 
     [Fact]
-    public void ThrowWhenTakingCardsFromEmptyStack() {
+    public void TakingCardsFromEmptyStackThrows() {
         // Arrange
         var stack = new TableauStack();
 
@@ -97,7 +97,7 @@ public class TableauStackTests {
     }
 
     [Fact]
-    public void PlaceInvalidCardOnNonEmptyStack() {
+    public void PlaceInvalidCardOnNonEmptyStackThrows() {
         // Arrange
         var threeOfCoins = new MinorArcana(Suit.Coins, 3);
         var fourOfSwords = new MinorArcana(Suit.Swords, 4);
@@ -138,7 +138,7 @@ public class TableauStackTests {
     }
 
     [Fact]
-    public void PlaceInvalidCardRangeOnNonEmptyStack() {
+    public void PlaceInvalidCardRangeOnNonEmptyStackThrows() {
         // Arrange
         var threeOfCoins = ImmutableList<Card>.Empty.Add(new MinorArcana(Suit.Goblets, 3));
         var cards = Enumerable.Range(4, 7).Select(n => new Card(new MinorArcana(Suit.Coins, n)));

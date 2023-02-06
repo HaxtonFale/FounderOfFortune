@@ -5,61 +5,86 @@ using FounderOfFortune.Game.Model;
 namespace FounderOfFortune.Game.Test.Collections;
 
 public class MinorArcanaStackTests {
-    public static IEnumerable<object[]> CanAscendTestData {
-        get {
-            foreach (var valid in ValidAscensions) yield return valid.Append(true).ToArray();
-            foreach (var invalid in InvalidAscensions) yield return invalid.Append(false).ToArray();
-        }
-    }
-
-    public static IEnumerable<object[]> ValidAscensions {
-        get {
-            yield return new object[] { new MinorArcana(Suit.Coins, 3), new MinorArcana(Suit.Coins, 4) };
-        }
-    }
-
-    public static IEnumerable<object[]> InvalidAscensions {
-        get {
-            yield return new object[] { new MinorArcana(Suit.Coins, 3), new MinorArcana(Suit.Goblets, 4) };
-            yield return new object[] { new MinorArcana(Suit.Coins, 3), new MinorArcana(Suit.Coins, 2) };
-            yield return new object[] { new MinorArcana(Suit.Coins, 3), new MinorArcana(Suit.Coins, 3) };
-        }
-    }
-
-    [Theory]
-    [MemberData(nameof(CanAscendTestData))]
-    public void CanAscendTest(MinorArcana topCard, MinorArcana testedCard, bool expectedResult) {
+    [Fact]
+    public void ValidAscensionUpdatesTopCard() {
         // Arrange
-        var stack = new MinorArcanaStack(topCard);
-
-        // Assert
-        stack.CanAscend(testedCard).Should().Be(expectedResult);
-    }
-
-    [Theory]
-    [MemberData(nameof(InvalidAscensions))]
-    public void InvalidAscensionThrows(MinorArcana topCard, MinorArcana ascendedCard) {
-        // Arrange
-        var stack = new MinorArcanaStack(topCard);
-        var message = ascendedCard.Suit == topCard.Suit ? "Card value ineligible for ascension *" : "Card suit mismatch *";
+        var stack = new MinorArcanaStack(new MinorArcana(Suit.Coins, 3));
+        var card = new MinorArcana(Suit.Coins, 4);
 
         // Act
-        var action = () => stack.Ascend(ascendedCard);
+        stack = stack.Ascend(card);
 
         // Assert
-        action.Should().Throw<ArgumentException>().WithMessage(message);
+        stack.TopCard.Should().Be(card);
+    }
+
+    [Fact]
+    public void ValidAscensionAllowed() {
+        // Arrange
+        var stack = new MinorArcanaStack(new MinorArcana(Suit.Coins, 3));
+        var card = new MinorArcana(Suit.Coins, 4);
+
+        // Act
+        var result = stack.CanAscend(card);
+
+        // Assert
+        result.Should().BeTrue();
+    }
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void ValueMismatchInvalidAscensionNotAllowed(int value) {
+        // Arrange
+        var stack = new MinorArcanaStack(new MinorArcana(Suit.Coins, 3));
+        var card = new MinorArcana(Suit.Coins, value);
+
+        // Act
+        var result = stack.CanAscend(card);
+
+        // Assert
+        result.Should().BeFalse();
     }
 
     [Theory]
-    [MemberData(nameof(ValidAscensions))]
-    public void ValidAscensionUpdatesTopCard(MinorArcana topCard, MinorArcana ascendedCard) {
+    [InlineData(2)]
+    [InlineData(3)]
+    [InlineData(5)]
+    public void ValueMismatchInvalidAscensionThrows(int value) {
         // Arrange
-        var stack = new MinorArcanaStack(topCard);
+        var stack = new MinorArcanaStack(new MinorArcana(Suit.Coins, 3));
+        var card = new MinorArcana(Suit.Coins, value);
 
         // Act
-        stack = stack.Ascend(ascendedCard);
+        var action = () => stack.Ascend(card);
 
         // Assert
-        stack.TopCard.Should().Be(ascendedCard);
+        action.Should().Throw<InvalidOperationException>().WithMessage("Card value ineligible for ascension");
+    }
+
+    [Fact]
+    public void SuitMismatchInvalidAscensionNotAllowed() {
+        // Arrange
+        var stack = new MinorArcanaStack(new MinorArcana(Suit.Coins, 3));
+        var card = new MinorArcana(Suit.Goblets, 4);
+
+        // Act
+        var result = stack.CanAscend(card);
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void SuitMismatchInvalidAscensionThrows() {
+        // Arrange
+        var stack = new MinorArcanaStack(new MinorArcana(Suit.Coins, 3));
+        var card = new MinorArcana(Suit.Goblets, 4);
+
+        // Act
+        var action = () => stack.Ascend(card);
+
+        // Assert
+        action.Should().Throw<InvalidOperationException>().WithMessage("Card suit mismatch");
     }
 }

@@ -21,7 +21,10 @@ public class MinorArcanaStacks : IEquatable<MinorArcanaStacks> {
         return new MinorArcanaStacks(_stacks.SetItem(card.Suit, newStack));
     }
 
-    public MinorArcana TopCard(Suit suit) => _stacks[suit].TopCard;
+    public MinorArcana TopCard(Suit suit) => TopCards[suit];
+
+    public IDictionary<Suit, MinorArcana> TopCards =>
+        _stacks.Values.Select(s => s.TopCard).ToImmutableDictionary(c => c.Suit);
 
     public bool CanAscend(MinorArcana card) => _stacks[card.Suit].CanAscend(card);
 

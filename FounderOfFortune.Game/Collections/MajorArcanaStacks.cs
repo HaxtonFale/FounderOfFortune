@@ -10,58 +10,64 @@ namespace FounderOfFortune.Game.Collections;
 /// Created as an immutable collection to make backtracking easier.
 /// </remarks>
 public class MajorArcanaStacks : IEquatable<MajorArcanaStacks> {
+    private readonly int _left;
     /// <summary>
     /// The lower end of the stack.<br />
     /// When empty, it accepts 0; otherwise, it will only take a card whose value is higher than it by 1.
     /// </summary>
-    public readonly MajorArcana? Left;
+    public readonly MajorArcana? LeftCard;
+
+    private readonly int _right;
     /// <summary>
     /// The higher end of the stack.<br />
     /// When empty, it accepts 21; otherwise, it will only take a card whose value is lower than it by 1.
     /// </summary>
-    public readonly MajorArcana? Right;
+    public readonly MajorArcana? RightCard;
 
     /// <summary>
     /// Initializes a pair of stacks into empty state.
     /// </summary>
-    internal MajorArcanaStacks() {
-        Left = null;
-        Right = null;
+    public MajorArcanaStacks() : this(-1, 22) {
     }
 
     /// <summary>
     /// Initializes a pair of stacks into the specified state.
     /// </summary>
     /// <exception cref="ArgumentException">Thrown if <paramref name="left"/> is greater than <paramref name="right"/>.</exception>
-    internal MajorArcanaStacks(MajorArcana? left, MajorArcana? right) {
+    internal MajorArcanaStacks(int left, int right) {
+        if (left < -1) throw new ArgumentException("Left cannot be lower than -1 (empty stack)", nameof(left));
+        if (right > 22) throw new ArgumentException("Right cannot be greater than 22 (empty stack)", nameof(right));
         if (left > right) throw new ArgumentException("Left cannot be greater than right.");
-        Left = left;
-        Right = right;
+        _left = left;
+        LeftCard = _left > -1 ? new MajorArcana(_left) : null;
+
+        _right = right;
+        RightCard = _right < 22 ? new MajorArcana(_right) : null;
     }
 
     /// <summary>
     /// Ascends a card to the stacks.
     /// </summary>
-    /// <param name="card">The major arcana to ascend. Must be eligible for ascension, i.e. greater by 1 than <see cref="Left"/> or lower by 1 than <see cref="Right"/>.</param>
+    /// <param name="card">The major arcana to ascend. Must be eligible for ascension, i.e. greater by 1 than <see cref="LeftCard"/> or lower by 1 than <see cref="RightCard"/>.</param>
     /// <returns>Updated pair of stacks after <paramref name="card"/> was ascended.</returns>
-    /// <exception cref="ArgumentException">Thrown if the given card is not eligible for ascension.</exception>
+    /// <exception cref="InvalidOperationException">Thrown if the given card is not eligible for ascension.</exception>
     /// <seealso cref="CanAscend"/>
-    internal MajorArcanaStacks Ascend(MajorArcana card) {
+    public MajorArcanaStacks Ascend(MajorArcana card) {
         var success = false;
-        var newLeft = Left;
-        if ((Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1)) {
-            newLeft = card;
+        var newLeft = _left;
+        if (card.Value == _left + 1) {
+            newLeft = card.Value;
             success = true;
         }
 
-        var newRight = Right;
-        if ((Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1)) {
-            newRight = card;
+        var newRight = _right;
+        if (card.Value == _right - 1) {
+            newRight = card.Value;
             success = true;
         }
 
         if (success) return new MajorArcanaStacks(newLeft, newRight);
-        throw new ArgumentException("Card value ineligible for ascension", nameof(card));
+        throw new InvalidOperationException("Card value ineligible for ascension");
     }
 
     /// <summary>
@@ -69,20 +75,16 @@ public class MajorArcanaStacks : IEquatable<MajorArcanaStacks> {
     /// </summary>
     /// <param name="cards"></param>
     /// <returns></returns>
-    internal MajorArcanaStacks AscendRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
+    public MajorArcanaStacks AscendRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
 
-    public bool CanAscend(MajorArcana card) {
-        if (Left != null && Right != null && Left == Right) return false;
-        return (Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1) ||
-               (Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1);
-    }
+    public bool CanAscend(MajorArcana card) => _left != _right && (card.Value == _left + 1 || card.Value == _right - 1);
 
     #region IEquatable
 
     public bool Equals(MajorArcanaStacks? other) {
         if (ReferenceEquals(null, other)) return false;
         if (ReferenceEquals(this, other)) return true;
-        return Nullable.Equals(Left, other.Left) && Nullable.Equals(Right, other.Right);
+        return _left == other._left && _right == other._right;
     }
 
     public override bool Equals(object? obj) {
@@ -93,17 +95,13 @@ public class MajorArcanaStacks : IEquatable<MajorArcanaStacks> {
 
     public override int GetHashCode() {
         unchecked {
-            return (Left.GetHashCode() * 397) ^ Right.GetHashCode();
+            return (_left.GetHashCode() * 397) ^ _right.GetHashCode();
         }
     }
 
-    public static bool operator ==(MajorArcanaStacks? left, MajorArcanaStacks? right) {
-        return Equals(left, right);
-    }
+    public static bool operator ==(MajorArcanaStacks? left, MajorArcanaStacks? right) => Equals(left, right);
 
-    public static bool operator !=(MajorArcanaStacks? left, MajorArcanaStacks? right) {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(MajorArcanaStacks? left, MajorArcanaStacks? right) => !Equals(left, right);
 
     #endregion
 }

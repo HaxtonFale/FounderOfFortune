@@ -9,7 +9,7 @@ namespace FounderOfFortune.Game.Collections;
 /// <remarks>
 /// Created as an immutable collection to make backtracking easier.
 /// </remarks>
-public class MajorArcanaStacks {
+public class MajorArcanaStacks : IEquatable<MajorArcanaStacks> {
     /// <summary>
     /// The lower end of the stack.<br />
     /// When empty, it accepts 0; otherwise, it will only take a card whose value is higher than it by 1.
@@ -76,4 +76,34 @@ public class MajorArcanaStacks {
         return (Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1) ||
                (Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1);
     }
+
+    #region IEquatable
+
+    public bool Equals(MajorArcanaStacks? other) {
+        if (ReferenceEquals(null, other)) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Nullable.Equals(Left, other.Left) && Nullable.Equals(Right, other.Right);
+    }
+
+    public override bool Equals(object? obj) {
+        if (ReferenceEquals(null, obj)) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        return obj.GetType() == GetType() && Equals((MajorArcanaStacks)obj);
+    }
+
+    public override int GetHashCode() {
+        unchecked {
+            return (Left.GetHashCode() * 397) ^ Right.GetHashCode();
+        }
+    }
+
+    public static bool operator ==(MajorArcanaStacks? left, MajorArcanaStacks? right) {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(MajorArcanaStacks? left, MajorArcanaStacks? right) {
+        return !Equals(left, right);
+    }
+
+    #endregion
 }

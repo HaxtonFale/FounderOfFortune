@@ -3,7 +3,7 @@ using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game.Collections;
 
-public class CardSequence : IReadOnlyList<Card> {
+public class CardSequence : IReadOnlyList<Card>, IEquatable<CardSequence> {
     private readonly Card _initialCard;
     private readonly int _finalCardValue;
 
@@ -26,6 +26,8 @@ public class CardSequence : IReadOnlyList<Card> {
 
     private Card CreateAtOffset(int offset) => IsMajorArcana ? new Card(_initialCard.AsMajorArcana + offset) : new Card(_initialCard.AsMinorArcana + offset);
 
+    #region IReadOnlyList
+
     IEnumerator IEnumerable.GetEnumerator() {
         return GetEnumerator();
     }
@@ -38,4 +40,36 @@ public class CardSequence : IReadOnlyList<Card> {
             return CreateAtOffset(index * Direction);
         }
     }
+
+    #endregion
+
+    #region IEquatable
+
+    public bool Equals(CardSequence? other) {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return _initialCard.Equals(other._initialCard) && _finalCardValue == other._finalCardValue;
+    }
+
+    public override bool Equals(object? obj) {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        return obj.GetType() == GetType() && Equals((CardSequence)obj);
+    }
+
+    public override int GetHashCode() {
+        unchecked {
+            return (_initialCard.GetHashCode() * 397) ^ _finalCardValue;
+        }
+    }
+
+    public static bool operator ==(CardSequence? left, CardSequence? right) {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(CardSequence? left, CardSequence? right) {
+        return !Equals(left, right);
+    }
+
+    #endregion
 }

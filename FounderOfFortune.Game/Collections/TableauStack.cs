@@ -7,9 +7,9 @@ namespace FounderOfFortune.Game.Collections;
 /// Represents a single stack (of 11) on the tableau.
 /// While it begins with an arbitrary assortment of cards, it will only accept cards if it's empty, or if the first incoming card can be placed on the one on the top.
 /// </summary>
-public class TableauStack {
+public class TableauStack : IEquatable<TableauStack> {
     public readonly ImmutableList<Card> Cards;
-    public readonly Card? TopCard;
+    public Card? TopCard => Cards.LastOrDefault();
 
     /// <summary>
     /// Initialize an empty stack.
@@ -19,8 +19,6 @@ public class TableauStack {
 
     public TableauStack(ImmutableList<Card> cards) {
         Cards = cards;
-        if (cards.Count == 0) { TopCard = null; }
-        else { TopCard = cards.Last(); }
     }
 
     /// <summary>
@@ -36,8 +34,7 @@ public class TableauStack {
         var index = Cards.Count - 1;
         var initialCard = Cards[index];
         var finalCard = initialCard;
-        while (index > 0 && Cards[index - 1].IsAdjacentTo(finalCard))
-        {
+        while (index > 0 && Cards[index - 1].IsAdjacentTo(finalCard)) {
             finalCard = Cards[--index];
         }
 
@@ -50,8 +47,7 @@ public class TableauStack {
     /// </summary>
     /// <param name="stack">New instance of <see cref="TableauStack"/> with the remaining cards (if any).</param>
     /// <exception cref="InvalidOperationException">Thrown when called on an empty stack.</exception>
-    public Card TakeCard(out TableauStack stack)
-    {
+    public Card TakeCard(out TableauStack stack) {
         if (Cards.IsEmpty) throw new InvalidOperationException("Cannot take a card from empty stack");
         stack = new TableauStack(Cards.SkipLast(1).ToImmutableList());
         return Cards.Last();
@@ -64,9 +60,7 @@ public class TableauStack {
     /// <returns>Stack updated with the new card.</returns>
     /// <exception cref="InvalidOperationException">Thrown when attempting to place an invalid card.</exception>
     public TableauStack PlaceCard(Card card) {
-        if (TopCard == null || TopCard.Value.IsAdjacentTo(card)) {
-            return new TableauStack(Cards.Add(card));
-        }
+        if (TopCard == null || TopCard.Value.IsAdjacentTo(card)) return new TableauStack(Cards.Add(card));
 
         throw new InvalidOperationException($"Cannot place {card} on top of stack ({Cards.Last()})");
     }
@@ -77,8 +71,35 @@ public class TableauStack {
     /// <param name="cards">The cards to be placed.</param>
     /// <returns>Stack updated with the new cards.</returns>
     /// <exception cref="InvalidOperationException">Thrown when attempting to place an invalid card.</exception>
-    public TableauStack PlaceRange(IEnumerable<Card> cards)
-    {
+    public TableauStack PlaceRange(IEnumerable<Card> cards) {
         return cards.Aggregate(this, (current, card) => current.PlaceCard(card));
     }
+
+    #region IEquatable
+
+    public bool Equals(TableauStack? other) {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Cards.Equals(other.Cards);
+    }
+
+    public override bool Equals(object? obj) {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        return obj.GetType() == GetType() && Equals((TableauStack)obj);
+    }
+
+    public override int GetHashCode() {
+        return Cards.GetHashCode();
+    }
+
+    public static bool operator ==(TableauStack? left, TableauStack? right) {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(TableauStack? left, TableauStack? right) {
+        return !Equals(left, right);
+    }
+
+    #endregion
 }

@@ -3,7 +3,7 @@ using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game.Collections;
 
-public class MinorArcanaStacks {
+public class MinorArcanaStacks : IEquatable<MinorArcanaStacks> {
     private readonly ImmutableDictionary<Suit, MinorArcanaStack> _stacks;
 
     public MinorArcanaStacks() {
@@ -29,4 +29,32 @@ public class MinorArcanaStacks {
     public bool CanAscend(MinorArcana card) => _stacks[card.Suit].CanAscend(card);
 
     public MinorArcanaStacks AscendRange(IEnumerable<MinorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
+
+    #region IEquatable
+
+    public bool Equals(MinorArcanaStacks? other) {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+        return Enum.GetValues<Suit>().All(s => _stacks[s] == other._stacks[s]);
+    }
+
+    public override bool Equals(object? obj) {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        return obj.GetType() == GetType() && Equals((MinorArcanaStacks)obj);
+    }
+
+    public override int GetHashCode() {
+        return _stacks.GetHashCode();
+    }
+
+    public static bool operator ==(MinorArcanaStacks? left, MinorArcanaStacks? right) {
+        return Equals(left, right);
+    }
+
+    public static bool operator !=(MinorArcanaStacks? left, MinorArcanaStacks? right) {
+        return !Equals(left, right);
+    }
+
+    #endregion
 }

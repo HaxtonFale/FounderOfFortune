@@ -49,4 +49,17 @@ public class MinorArcanaStackTests {
         // Assert
         action.Should().Throw<ArgumentException>().WithMessage(message);
     }
+
+    [Theory]
+    [MemberData(nameof(ValidAscensions))]
+    public void ValidAscensionUpdatesTopCard(MinorArcana topCard, MinorArcana ascendedCard) {
+        // Arrange
+        var stack = new MinorArcanaStack(topCard);
+
+        // Act
+        stack = stack.Ascend(ascendedCard);
+
+        // Assert
+        stack.TopCard.Should().Be(ascendedCard);
+    }
 }

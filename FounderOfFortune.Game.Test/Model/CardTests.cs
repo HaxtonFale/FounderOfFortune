@@ -1,4 +1,5 @@
-﻿using FounderOfFortune.Game.Model;
+﻿using FluentAssertions;
+using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game.Test.Model;
 
@@ -16,9 +17,7 @@ public class CardTests {
 
     [Theory]
     [MemberData(nameof(EqualityTestData))]
-    public void EqualityTest(Card left, Card right, bool expected) {
-        Assert.Equal(expected, left.Equals(right));
-    }
+    public void EqualityTest(Card left, Card right, bool expected) => left.Equals(right).Should().Be(expected);
 
     public static IEnumerable<object[]> AdjacencyTestData {
         get {
@@ -35,7 +34,5 @@ public class CardTests {
 
     [Theory]
     [MemberData(nameof(AdjacencyTestData))]
-    public void AdjacencyTest(Card left, Card right, bool expected) {
-        Assert.Equal(expected, left.IsAdjacentTo(right));
-    }
+    public void AdjacencyTest(Card left, Card right, bool expected) => left.IsAdjacentTo(right).Should().Be(expected);
 }

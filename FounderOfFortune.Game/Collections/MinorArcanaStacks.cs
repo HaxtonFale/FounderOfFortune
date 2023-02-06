@@ -6,13 +6,12 @@ namespace FounderOfFortune.Game.Collections;
 public class MinorArcanaStacks : IEquatable<MinorArcanaStacks> {
     private readonly ImmutableDictionary<Suit, MinorArcanaStack> _stacks;
 
-    public MinorArcanaStacks() {
+    public MinorArcanaStacks() =>
         _stacks = ImmutableDictionary<Suit, MinorArcanaStack>.Empty
             .Add(Suit.Coins, new MinorArcanaStack(new MinorArcana(Suit.Coins, 1)))
             .Add(Suit.Goblets, new MinorArcanaStack(new MinorArcana(Suit.Goblets, 1)))
             .Add(Suit.Swords, new MinorArcanaStack(new MinorArcana(Suit.Swords, 1)))
             .Add(Suit.Wands, new MinorArcanaStack(new MinorArcana(Suit.Wands, 1)));
-    }
 
     private MinorArcanaStacks(ImmutableDictionary<Suit, MinorArcanaStack> stacks) => _stacks = stacks;
 

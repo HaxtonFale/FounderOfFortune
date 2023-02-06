@@ -9,7 +9,7 @@ namespace FounderOfFortune.Game.Collections;
 /// </summary>
 public class TableauStack : IEquatable<TableauStack> {
     public readonly ImmutableList<Card> Cards;
-    public Card? TopCard => Cards.LastOrDefault();
+    public Card? TopCard => Cards.Cast<Card?>().LastOrDefault();
 
     /// <summary>
     /// Initialize an empty stack.

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using FluentAssertions;
 using FounderOfFortune.Game.Collections;
 using FounderOfFortune.Game.Model;
 
@@ -11,7 +12,7 @@ public class TableauStackTests {
         var stack = new TableauStack();
 
         // Assert
-        Assert.Empty(stack.Cards);
+        stack.Cards.Should().BeEmpty();
     }
 
     [Fact]
@@ -24,8 +25,8 @@ public class TableauStackTests {
         var newCards = stack.TakeCards(out var newStack);
 
         // Assert
-        Assert.Equal(cards.Reverse(), newCards);
-        Assert.Empty(newStack.Cards);
+        newCards.Should().BeEquivalentTo(cards.Reverse());
+        newStack.Cards.Should().BeEmpty();
     }
 
     [Fact]
@@ -39,8 +40,8 @@ public class TableauStackTests {
         var takenCards = stack.TakeCards(out var newStack);
 
         // Assert
-        Assert.Equal(topCards.Reverse(), takenCards);
-        Assert.Equal(cards, newStack.Cards);
+        takenCards.Should().BeEquivalentTo(topCards.Reverse());
+        newStack.Cards.Should().BeEquivalentTo(cards);
     }
 
     [Fact]
@@ -49,17 +50,23 @@ public class TableauStackTests {
         // Arrange
         var stack = new TableauStack();
 
+        // Act
+        var action = () => stack.TakeCard(out _);
+
         // Assert
-        Assert.Throws<InvalidOperationException>(() => stack.TakeCard(out _));
+        action.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
-    public void ThrowWhenTakingTakeCardsFromEmptyStack() {
+    public void ThrowWhenTakingCardsFromEmptyStack() {
         // Arrange
         var stack = new TableauStack();
 
+        // Act
+        var action = () => stack.TakeCards(out _);
+
         // Assert
-        Assert.Throws<InvalidOperationException>(() => stack.TakeCards(out _));
+        action.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
@@ -72,7 +79,7 @@ public class TableauStackTests {
         var newStack = stack.PlaceCard(card);
 
         // Assert
-        Assert.Equal(new List<Card> { card }, newStack.Cards);
+        newStack.Cards.Should().BeEquivalentTo(new List<Card> { card });
     }
 
     [Fact]
@@ -86,7 +93,7 @@ public class TableauStackTests {
         var newStack = stack.PlaceCard(threeOfCoins);
 
         // Assert
-        Assert.Equal(new List<Card> { fourOfCoins, threeOfCoins }, newStack.Cards);
+        newStack.Cards.Should().BeEquivalentTo(new List<Card> { fourOfCoins, threeOfCoins });
     }
 
     [Fact]
@@ -96,8 +103,11 @@ public class TableauStackTests {
         var fourOfSwords = new MinorArcana(Suit.Swords, 4);
         var stack = new TableauStack(ImmutableList<Card>.Empty.Add(fourOfSwords));
 
+        // Act
+        var action = () => stack.PlaceCard(threeOfCoins);
+
         // Assert
-        Assert.Throws<InvalidOperationException>(() => stack.PlaceCard(threeOfCoins));
+        action.Should().Throw<InvalidOperationException>();
     }
 
     [Fact]
@@ -110,7 +120,7 @@ public class TableauStackTests {
         var newStack = stack.PlaceRange(cards);
 
         // Assert
-        Assert.Equal(cards, newStack.Cards);
+        newStack.Cards.Should().BeEquivalentTo(cards);
     }
 
     [Fact]
@@ -124,7 +134,7 @@ public class TableauStackTests {
         var newStack = stack.PlaceRange(cards);
 
         // Assert
-        Assert.Equal(threeOfCoins.AddRange(cards), newStack.Cards);
+        newStack.Cards.Should().BeEquivalentTo(threeOfCoins.AddRange(cards));
     }
 
     [Fact]
@@ -134,7 +144,10 @@ public class TableauStackTests {
         var cards = Enumerable.Range(4, 7).Select(n => new Card(new MinorArcana(Suit.Coins, n)));
         var stack = new TableauStack(threeOfCoins);
 
+        // Act
+        var action = () => stack.PlaceRange(cards);
+
         // Assert
-        Assert.Throws<InvalidOperationException>(() => stack.PlaceRange(cards));
+        action.Should().Throw<InvalidOperationException>();
     }
 }

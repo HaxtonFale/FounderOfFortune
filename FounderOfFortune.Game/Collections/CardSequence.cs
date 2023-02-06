@@ -8,6 +8,10 @@ public class CardSequence : IReadOnlyList<Card>, IEquatable<CardSequence> {
     private readonly int _finalCardValue;
 
     public CardSequence(Card initialCard, int finalCardValue) {
+        if ((initialCard.IsMajorArcana && finalCardValue is < 0 or > 21) ||
+            initialCard.IsMinorArcana && finalCardValue is < 1 or > 13) {
+            throw new ArgumentOutOfRangeException(nameof(finalCardValue), $"Invalid final card value: {finalCardValue}");
+        }
         _initialCard = initialCard;
         _finalCardValue = finalCardValue;
     }

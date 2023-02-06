@@ -34,9 +34,9 @@ public class MajorArcanaStacks : IEquatable<MajorArcanaStacks> {
     /// Initializes a pair of stacks into the specified state.
     /// </summary>
     /// <exception cref="ArgumentException">Thrown if <paramref name="left"/> is greater than <paramref name="right"/>.</exception>
-    internal MajorArcanaStacks(int left, int right) {
-        if (left < -1) throw new ArgumentException("Left cannot be lower than -1 (empty stack)", nameof(left));
-        if (right > 22) throw new ArgumentException("Right cannot be greater than 22 (empty stack)", nameof(right));
+    public MajorArcanaStacks(int left, int right) {
+        if (left < -1) throw new ArgumentOutOfRangeException(nameof(left), "Left cannot be lower than -1 (empty stack)");
+        if (right > 22) throw new ArgumentOutOfRangeException(nameof(right), "Right cannot be greater than 22 (empty stack)");
         if (left > right) throw new ArgumentException("Left cannot be greater than right.");
         _left = left;
         LeftCard = _left > -1 ? new MajorArcana(_left) : null;

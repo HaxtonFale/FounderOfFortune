@@ -51,4 +51,23 @@ public class CardSequenceTests {
         // Assert
         sequence.Should().BeEquivalentTo(expected);
     }
+
+    public static IEnumerable<object[]> InvalidCardSequences {
+        get {
+            yield return new object[] { new MajorArcana(20), 23 };
+            yield return new object[] { new MajorArcana(2), -1 };
+            yield return new object[] { new MinorArcana(Suit.Coins, 10), 15 };
+            yield return new object[] { new MinorArcana(Suit.Coins, 2), -1 };
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidCardSequences))]
+    public void CannotCreateInvalidSequence(Card initialCard, int finalCardValue) {
+        // Arrange & Act
+        var action = () => new CardSequence(initialCard, finalCardValue);
+
+        // Assert
+        action.Should().Throw<ArgumentOutOfRangeException>("we can't create invalid cards").WithMessage($"Invalid final card value: {finalCardValue} *");
+    }
 }

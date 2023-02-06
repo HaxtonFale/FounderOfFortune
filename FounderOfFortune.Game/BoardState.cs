@@ -4,7 +4,7 @@ using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game;
 
-public readonly struct BoardState {
+public readonly struct BoardState : IEquatable<BoardState> {
     public readonly MajorArcanaStacks MajorArcanaStacks;
     public readonly MinorArcanaStacks MinorArcanaStacks;
     public readonly Card? FreeCell;
@@ -61,7 +61,7 @@ public readonly struct BoardState {
         MajorArcanaStacks = newMajorArcanaStacks;
         MinorArcanaStacks = newMinorArcanaStacks;
         FreeCell = newFreeCell;
-        TableauStacks = newTableauStacks.ToImmutableList();
+        TableauStacks = newTableauStacks;
     }
 
     public BoardState(ImmutableList<TableauStack> tableauStacks) : this(new MajorArcanaStacks(),
@@ -113,4 +113,29 @@ public readonly struct BoardState {
 
         return new BoardState(MajorArcanaStacks, MinorArcanaStacks, FreeCell, updatedTableau);
     }
+
+    #region IEquatable
+
+    public bool Equals(BoardState other) {
+        // First check the easy bits: whether the ascension stacks and the free cell are equal
+        if (!(MajorArcanaStacks.Equals(other.MajorArcanaStacks) && MinorArcanaStacks.Equals(other.MinorArcanaStacks) && Nullable.Equals(FreeCell, other.FreeCell))) return false;
+
+        // Checking the equality of tableau stacks is more complex: we do not care about the order for comparisons, though it does matter for gameplay's sake.
+        // Start with an easy check: is there a different number of empty stacks on the tableau? A quick way to disqualify a lot.
+        if (TableauStacks.Count(t => t.IsEmpty) != other.TableauStacks.Count(t => t.IsEmpty)) return false;
+        // Then, make sure that every non-empty stack on this end exists in the other
+        var nonEmptyStacks = TableauStacks.Where(t => !t.IsEmpty).ToImmutableHashSet();
+        var otherNonEmptyStacks = other.TableauStacks.Where(t => !t.IsEmpty).ToImmutableHashSet();
+        return nonEmptyStacks.SetEquals(otherNonEmptyStacks);
+    }
+
+    public override bool Equals(object? obj) => obj is BoardState other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(MajorArcanaStacks, MinorArcanaStacks, FreeCell, TableauStacks);
+
+    public static bool operator ==(BoardState left, BoardState right) => left.Equals(right);
+
+    public static bool operator !=(BoardState left, BoardState right) => !left.Equals(right);
+
+    #endregion
 }

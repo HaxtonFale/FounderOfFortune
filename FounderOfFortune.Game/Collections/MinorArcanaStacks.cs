@@ -14,9 +14,7 @@ public class MinorArcanaStacks : IEquatable<MinorArcanaStacks> {
             .Add(Suit.Wands, new MinorArcanaStack(new MinorArcana(Suit.Wands, 1)));
     }
 
-    private MinorArcanaStacks(ImmutableDictionary<Suit, MinorArcanaStack> stacks) {
-        _stacks = stacks;
-    }
+    private MinorArcanaStacks(ImmutableDictionary<Suit, MinorArcanaStack> stacks) => _stacks = stacks;
 
     public MinorArcanaStacks Ascend(MinorArcana card) {
         var stack = _stacks[card.Suit];
@@ -44,17 +42,11 @@ public class MinorArcanaStacks : IEquatable<MinorArcanaStacks> {
         return obj.GetType() == GetType() && Equals((MinorArcanaStacks)obj);
     }
 
-    public override int GetHashCode() {
-        return _stacks.GetHashCode();
-    }
+    public override int GetHashCode() => _stacks.GetHashCode();
 
-    public static bool operator ==(MinorArcanaStacks? left, MinorArcanaStacks? right) {
-        return Equals(left, right);
-    }
+    public static bool operator ==(MinorArcanaStacks? left, MinorArcanaStacks? right) => Equals(left, right);
 
-    public static bool operator !=(MinorArcanaStacks? left, MinorArcanaStacks? right) {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(MinorArcanaStacks? left, MinorArcanaStacks? right) => !Equals(left, right);
 
     #endregion
 }

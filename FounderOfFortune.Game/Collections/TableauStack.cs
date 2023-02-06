@@ -17,9 +17,9 @@ public class TableauStack : IEquatable<TableauStack> {
     public TableauStack() : this(ImmutableList<Card>.Empty) {
     }
 
-    public TableauStack(ImmutableList<Card> cards) {
-        Cards = cards;
-    }
+    public TableauStack(ImmutableList<Card> cards) => Cards = cards;
+
+    public bool IsEmpty => Cards.Count == 0;
 
     /// <summary>
     /// Take a sequence of consecutive cards from the top of the stack.
@@ -71,9 +71,7 @@ public class TableauStack : IEquatable<TableauStack> {
     /// <param name="cards">The cards to be placed.</param>
     /// <returns>Stack updated with the new cards.</returns>
     /// <exception cref="InvalidOperationException">Thrown when attempting to place an invalid card.</exception>
-    public TableauStack PlaceRange(IEnumerable<Card> cards) {
-        return cards.Aggregate(this, (current, card) => current.PlaceCard(card));
-    }
+    public TableauStack PlaceRange(IEnumerable<Card> cards) => cards.Aggregate(this, (current, card) => current.PlaceCard(card));
 
     #region IEquatable
 
@@ -89,17 +87,11 @@ public class TableauStack : IEquatable<TableauStack> {
         return obj.GetType() == GetType() && Equals((TableauStack)obj);
     }
 
-    public override int GetHashCode() {
-        return Cards.GetHashCode();
-    }
+    public override int GetHashCode() => Cards.GetHashCode();
 
-    public static bool operator ==(TableauStack? left, TableauStack? right) {
-        return Equals(left, right);
-    }
+    public static bool operator ==(TableauStack? left, TableauStack? right) => Equals(left, right);
 
-    public static bool operator !=(TableauStack? left, TableauStack? right) {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(TableauStack? left, TableauStack? right) => !Equals(left, right);
 
     #endregion
 }

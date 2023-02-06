@@ -5,9 +5,7 @@ namespace FounderOfFortune.Game.Collections;
 public class MinorArcanaStack : IEquatable<MinorArcanaStack> {
     public readonly MinorArcana TopCard;
 
-    public MinorArcanaStack(MinorArcana topCard) {
-        TopCard = topCard;
-    }
+    public MinorArcanaStack(MinorArcana topCard) => TopCard = topCard;
 
     public MinorArcanaStack Ascend(MinorArcana card) {
         if (card.Suit != TopCard.Suit) {
@@ -36,17 +34,11 @@ public class MinorArcanaStack : IEquatable<MinorArcanaStack> {
         return obj.GetType() == GetType() && Equals((MinorArcanaStack)obj);
     }
 
-    public override int GetHashCode() {
-        return TopCard.GetHashCode();
-    }
+    public override int GetHashCode() => TopCard.GetHashCode();
 
-    public static bool operator ==(MinorArcanaStack? left, MinorArcanaStack? right) {
-        return Equals(left, right);
-    }
+    public static bool operator ==(MinorArcanaStack? left, MinorArcanaStack? right) => Equals(left, right);
 
-    public static bool operator !=(MinorArcanaStack? left, MinorArcanaStack? right) {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(MinorArcanaStack? left, MinorArcanaStack? right) => !Equals(left, right);
 
     #endregion
 }

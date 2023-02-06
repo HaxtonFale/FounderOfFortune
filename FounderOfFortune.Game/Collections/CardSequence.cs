@@ -63,13 +63,9 @@ public class CardSequence : IReadOnlyList<Card>, IEquatable<CardSequence> {
         }
     }
 
-    public static bool operator ==(CardSequence? left, CardSequence? right) {
-        return Equals(left, right);
-    }
+    public static bool operator ==(CardSequence? left, CardSequence? right) => Equals(left, right);
 
-    public static bool operator !=(CardSequence? left, CardSequence? right) {
-        return !Equals(left, right);
-    }
+    public static bool operator !=(CardSequence? left, CardSequence? right) => !Equals(left, right);
 
     #endregion
 }

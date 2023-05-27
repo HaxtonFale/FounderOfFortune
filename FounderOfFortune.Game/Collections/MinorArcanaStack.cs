@@ -9,7 +9,7 @@ public class MinorArcanaStack {
         TopCard = topCard;
     }
 
-    public MinorArcanaStack Ascend(MinorArcana card) {
+    public MinorArcanaStack Promote(MinorArcana card) {
         if (card.Suit != TopCard.Suit) {
             throw new ArgumentException("Card suit mismatch", nameof(card));
         }
@@ -20,5 +20,5 @@ public class MinorArcanaStack {
         return new MinorArcanaStack(card);
     }
 
-    public bool CanAscend(MinorArcana card) => card.Suit == TopCard.Suit && card == TopCard + 1;
+    public bool CanPromote(MinorArcana card) => card.Suit == TopCard.Suit && card == TopCard + 1;
 }

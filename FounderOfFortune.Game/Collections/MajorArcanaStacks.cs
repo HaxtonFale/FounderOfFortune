@@ -40,13 +40,13 @@ public class MajorArcanaStacks {
     }
 
     /// <summary>
-    /// Ascends a card to the stacks.
+    /// Promotes a card to the stacks.
     /// </summary>
-    /// <param name="card">The major arcana to ascend. Must be eligible for ascension, i.e. greater by 1 than <see cref="Left"/> or lower by 1 than <see cref="Right"/>.</param>
-    /// <returns>Updated pair of stacks after <paramref name="card"/> was ascended.</returns>
+    /// <param name="card">The major arcana to promote. Must be eligible for ascension, i.e. greater by 1 than <see cref="Left"/> or lower by 1 than <see cref="Right"/>.</param>
+    /// <returns>Updated pair of stacks after <paramref name="card"/> was promoted.</returns>
     /// <exception cref="ArgumentException">Thrown if the given card is not eligible for ascension.</exception>
-    /// <seealso cref="CanAscend"/>
-    internal MajorArcanaStacks Ascend(MajorArcana card) {
+    /// <seealso cref="CanPromote"/>
+    internal MajorArcanaStacks Promote(MajorArcana card) {
         var success = false;
         var newLeft = Left;
         if ((Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1)) {
@@ -65,13 +65,13 @@ public class MajorArcanaStacks {
     }
 
     /// <summary>
-    /// Ascends a streak of cards 
+    /// Promotes a streak of cards 
     /// </summary>
     /// <param name="cards"></param>
     /// <returns></returns>
-    internal MajorArcanaStacks AscendRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
+    internal MajorArcanaStacks PromoteRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Promote(card));
 
-    public bool CanAscend(MajorArcana card) {
+    public bool CanPromote(MajorArcana card) {
         if (Left != null && Right != null && Left == Right) return false;
         return (Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1) ||
                (Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1);

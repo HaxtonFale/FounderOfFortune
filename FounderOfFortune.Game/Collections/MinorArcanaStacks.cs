@@ -18,15 +18,15 @@ public class MinorArcanaStacks {
         _stacks = stacks;
     }
 
-    public MinorArcanaStacks Ascend(MinorArcana card) {
+    public MinorArcanaStacks Promote(MinorArcana card) {
         var stack = _stacks[card.Suit];
-        var newStack = stack.Ascend(card);
+        var newStack = stack.Promote(card);
         return new MinorArcanaStacks(_stacks.SetItem(card.Suit, newStack));
     }
 
     public MinorArcana TopCard(Suit suit) => _stacks[suit].TopCard;
 
-    public bool CanAscend(MinorArcana card) => _stacks[card.Suit].CanAscend(card);
+    public bool CanPromote(MinorArcana card) => _stacks[card.Suit].CanPromote(card);
 
-    public MinorArcanaStacks AscendRange(IEnumerable<MinorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Ascend(card));
+    public MinorArcanaStacks PromoteRange(IEnumerable<MinorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Promote(card));
 }

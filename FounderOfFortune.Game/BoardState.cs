@@ -20,43 +20,47 @@ public readonly struct BoardState {
         var newFreeCell = freeCell;
         var newTableauStacks = tableauStacks;
 
-        var ascended = false;
+        var promoted = false;
         do {
             for (var i = 0; i < 11; i++) {
                 var card = newTableauStacks[i].TopCard;
                 if (card == null) continue;
 
                 var topCard = card.Value;
-                if (topCard.IsMajorArcana && newMajorArcanaStacks.CanAscend(topCard.AsMajorArcana)) {
+                if (topCard.IsMajorArcana && newMajorArcanaStacks.CanPromote(topCard.AsMajorArcana)) {
                     newMajorArcanaStacks =
-                        newMajorArcanaStacks.AscendRange(newTableauStacks[i]
+                        newMajorArcanaStacks.PromoteRange(newTableauStacks[i]
                             .TakeCards(out var updatedStack).Select(c => c.AsMajorArcana));
                     newTableauStacks = newTableauStacks.SetItem(i, updatedStack);
-                    ascended = true;
+                    promoted = true;
+                    break;
                 }
 
-                if (topCard.IsMinorArcana && newMinorArcanaStacks.CanAscend(topCard.AsMinorArcana) && newFreeCell == null) {
-                    newMinorArcanaStacks = newMinorArcanaStacks.AscendRange(newTableauStacks[i]
+                if (topCard.IsMinorArcana && newMinorArcanaStacks.CanPromote(topCard.AsMinorArcana) && newFreeCell == null) {
+                    newMinorArcanaStacks = newMinorArcanaStacks.PromoteRange(newTableauStacks[i]
                         .TakeCards(out var updatedStack).Select(c => c.AsMinorArcana));
                     newTableauStacks = newTableauStacks.SetItem(i, updatedStack);
-                    ascended = true;
+                    promoted = true;
+                    break;
                 }
             }
+
+            if (promoted) continue;
 
             if (newFreeCell == null) continue;
 
-            if (newFreeCell.Value.IsMajorArcana && newMajorArcanaStacks.CanAscend(newFreeCell.Value.AsMajorArcana)) {
-                newMajorArcanaStacks = newMajorArcanaStacks.Ascend(newFreeCell.Value.AsMajorArcana);
+            if (newFreeCell.Value.IsMajorArcana && newMajorArcanaStacks.CanPromote(newFreeCell.Value.AsMajorArcana)) {
+                newMajorArcanaStacks = newMajorArcanaStacks.Promote(newFreeCell.Value.AsMajorArcana);
                 newFreeCell = null;
-                ascended = true;
+                promoted = true;
             }
             else if (newFreeCell.Value.IsMinorArcana &&
-                     newMinorArcanaStacks.CanAscend(newFreeCell.Value.AsMinorArcana)) {
-                newMinorArcanaStacks = newMinorArcanaStacks.Ascend(newFreeCell.Value.AsMinorArcana);
+                     newMinorArcanaStacks.CanPromote(newFreeCell.Value.AsMinorArcana)) {
+                newMinorArcanaStacks = newMinorArcanaStacks.Promote(newFreeCell.Value.AsMinorArcana);
                 newFreeCell = null;
-                ascended = true;
+                promoted = true;
             }
-        } while (ascended);
+        } while (promoted);
 
         MajorArcanaStacks = newMajorArcanaStacks;
         MinorArcanaStacks = newMinorArcanaStacks;

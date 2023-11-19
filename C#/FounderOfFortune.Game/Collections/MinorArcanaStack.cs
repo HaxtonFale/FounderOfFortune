@@ -13,12 +13,16 @@ public class MinorArcanaStack {
         if (card.Suit != TopCard.Suit) {
             throw new ArgumentException("Card suit mismatch", nameof(card));
         }
+
+        if (TopCard.Value >= MinorArcana.MaxValue) {
+            throw new InvalidOperationException("Card stack full");
+        }
         if (card != TopCard + 1) {
-            throw new ArgumentException("Card value ineligible for ascension", nameof(card));
+            throw new ArgumentException("Card value ineligible for promotion", nameof(card));
         }
 
         return new MinorArcanaStack(card);
     }
 
-    public bool CanPromote(MinorArcana card) => card.Suit == TopCard.Suit && card == TopCard + 1;
+    public bool CanPromote(MinorArcana card) => TopCard.Value < MinorArcana.MaxValue && card == TopCard + 1;
 }

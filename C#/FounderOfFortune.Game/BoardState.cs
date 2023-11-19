@@ -4,30 +4,55 @@ using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game;
 
-public readonly struct BoardState {
+public readonly struct BoardState
+{
     public readonly MajorArcanaStacks MajorArcanaStacks;
     public readonly MinorArcanaStacks MinorArcanaStacks;
     public readonly Card? FreeCell;
     public readonly ImmutableList<TableauStack> TableauStacks;
 
-    private BoardState(MajorArcanaStacks majorArcanaStacks, MinorArcanaStacks minorArcanaStacks, Card? freeCell,
-        ImmutableList<TableauStack> tableauStacks) {
+    public BoardState(MajorArcanaStacks majorArcanaStacks, MinorArcanaStacks minorArcanaStacks, Card? freeCell,
+        ImmutableList<TableauStack> tableauStacks)
+    {
         if (tableauStacks.Count != 11)
-            throw new ArgumentException("Must have exactly 11 tableau stacks.", nameof(tableauStacks));
+            throw new ArgumentException("Must have exactly 11 tableau stacks", nameof(tableauStacks));
 
         var newMajorArcanaStacks = majorArcanaStacks;
         var newMinorArcanaStacks = minorArcanaStacks;
         var newFreeCell = freeCell;
         var newTableauStacks = tableauStacks;
 
-        var promoted = false;
-        do {
-            for (var i = 0; i < 11; i++) {
+        bool promoted;
+        do
+        {
+            promoted = false;
+            if (newFreeCell.HasValue)
+            {
+                if (newFreeCell.Value.IsMajorArcana && newMajorArcanaStacks.CanPromote(newFreeCell.Value.AsMajorArcana))
+                {
+                    newMajorArcanaStacks = newMajorArcanaStacks.Promote(newFreeCell.Value.AsMajorArcana);
+                    newFreeCell = null;
+                    promoted = true;
+                }
+                else if (newFreeCell.Value.IsMinorArcana &&
+                         newMinorArcanaStacks.CanPromote(newFreeCell.Value.AsMinorArcana))
+                {
+                    newMinorArcanaStacks = newMinorArcanaStacks.Promote(newFreeCell.Value.AsMinorArcana);
+                    newFreeCell = null;
+                    promoted = true;
+                }
+            }
+
+            if (promoted) continue;
+
+            for (var i = 0; i < 11; i++)
+            {
                 var card = newTableauStacks[i].TopCard;
                 if (card == null) continue;
 
                 var topCard = card.Value;
-                if (topCard.IsMajorArcana && newMajorArcanaStacks.CanPromote(topCard.AsMajorArcana)) {
+                if (topCard.IsMajorArcana && newMajorArcanaStacks.CanPromote(topCard.AsMajorArcana))
+                {
                     newMajorArcanaStacks =
                         newMajorArcanaStacks.PromoteRange(newTableauStacks[i]
                             .TakeCards(out var updatedStack).Select(c => c.AsMajorArcana));
@@ -36,7 +61,8 @@ public readonly struct BoardState {
                     break;
                 }
 
-                if (topCard.IsMinorArcana && newMinorArcanaStacks.CanPromote(topCard.AsMinorArcana) && newFreeCell == null) {
+                if (topCard.IsMinorArcana && newMinorArcanaStacks.CanPromote(topCard.AsMinorArcana) && newFreeCell == null)
+                {
                     newMinorArcanaStacks = newMinorArcanaStacks.PromoteRange(newTableauStacks[i]
                         .TakeCards(out var updatedStack).Select(c => c.AsMinorArcana));
                     newTableauStacks = newTableauStacks.SetItem(i, updatedStack);
@@ -44,35 +70,21 @@ public readonly struct BoardState {
                     break;
                 }
             }
-
-            if (promoted) continue;
-
-            if (newFreeCell == null) continue;
-
-            if (newFreeCell.Value.IsMajorArcana && newMajorArcanaStacks.CanPromote(newFreeCell.Value.AsMajorArcana)) {
-                newMajorArcanaStacks = newMajorArcanaStacks.Promote(newFreeCell.Value.AsMajorArcana);
-                newFreeCell = null;
-                promoted = true;
-            }
-            else if (newFreeCell.Value.IsMinorArcana &&
-                     newMinorArcanaStacks.CanPromote(newFreeCell.Value.AsMinorArcana)) {
-                newMinorArcanaStacks = newMinorArcanaStacks.Promote(newFreeCell.Value.AsMinorArcana);
-                newFreeCell = null;
-                promoted = true;
-            }
         } while (promoted);
 
         MajorArcanaStacks = newMajorArcanaStacks;
         MinorArcanaStacks = newMinorArcanaStacks;
         FreeCell = newFreeCell;
-        TableauStacks = newTableauStacks.ToImmutableList();
+        TableauStacks = newTableauStacks;
     }
 
     public BoardState(ImmutableList<TableauStack> tableauStacks) : this(new MajorArcanaStacks(),
-        new MinorArcanaStacks(), null, tableauStacks) {
+        new MinorArcanaStacks(), null, tableauStacks)
+    {
     }
 
-    public BoardState StoreCard(int source) {
+    public BoardState StoreCard(int source)
+    {
         if (source is < 0 or > 10)
             throw new ArgumentOutOfRangeException(nameof(source), "Source stack must be between 0 and 10");
         if (FreeCell.HasValue)
@@ -84,7 +96,8 @@ public readonly struct BoardState {
         return new BoardState(MajorArcanaStacks, MinorArcanaStacks, storedCard, updatedTableauStacks);
     }
 
-    public BoardState RetrieveCard(int destination) {
+    public BoardState RetrieveCard(int destination)
+    {
         if (destination is < 0 or > 10)
             throw new ArgumentOutOfRangeException(nameof(destination), "Destination stack must be between 0 and 10");
         if (!FreeCell.HasValue)
@@ -98,7 +111,29 @@ public readonly struct BoardState {
         return new BoardState(MajorArcanaStacks, MinorArcanaStacks, null, updatedTableau);
     }
 
-    public BoardState MoveCards(int source, int destination) {
+    public BoardState MoveSingleCard(int source, int destination)
+    {
+        if (source is < 0 or > 10)
+            throw new ArgumentOutOfRangeException(nameof(source), "Source stack must be between 0 and 10");
+        if (destination is < 0 or > 10)
+            throw new ArgumentOutOfRangeException(nameof(destination), "Destination stack must be between 0 and 10");
+
+        var sourceStack = TableauStacks[source];
+        if (sourceStack.TopCard == null)
+            throw new InvalidOperationException("Cannot move cards from an empty stack");
+        var destinationStack = TableauStacks[destination];
+        if (destinationStack.TopCard != null && !destinationStack.TopCard.Value.IsAdjacentTo(sourceStack.TopCard.Value))
+            throw new InvalidOperationException($"Cannot move cards from stack {source} to stack {destination}");
+
+        var movedCard = sourceStack.TakeCard(out var updatedSourceStack);
+        var updatedDestinationStack = destinationStack.PlaceCard(movedCard);
+        var updatedTableau = TableauStacks.SetItem(source, updatedSourceStack).SetItem(destination, updatedDestinationStack);
+
+        return new BoardState(MajorArcanaStacks, MinorArcanaStacks, FreeCell, updatedTableau);
+    }
+
+    public BoardState MoveCardSequence(int source, int destination)
+    {
         if (source is < 0 or > 10)
             throw new ArgumentOutOfRangeException(nameof(source), "Source stack must be between 0 and 10");
         if (destination is < 0 or > 10)

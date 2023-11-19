@@ -5,21 +5,21 @@
 /// </summary>
 public readonly struct MinorArcana : IComparable<MinorArcana>, IComparable, IEquatable<MinorArcana>
 {
+    public const int MinValue = 1;
+    public const int MaxValue = 13;
+
     public Suit Suit { get; }
     public int Value { get; }
 
-    public MinorArcana(Suit suit, int value)
-    {
-        if (value is < 1 or > 13)
+    public MinorArcana(Suit suit, int value) {
+        if (value is < MinValue or > MaxValue)
             throw new ArgumentOutOfRangeException(nameof(value), "Value must be between 1 and 13");
         Suit = suit;
         Value = value;
     }
 
-    public override string ToString()
-    {
-        var number = Value switch
-        {
+    public override string ToString() {
+        var number = Value switch {
             1 => "Ace",
             13 => "King",
             12 => "Queen",
@@ -38,7 +38,7 @@ public readonly struct MinorArcana : IComparable<MinorArcana>, IComparable, IEqu
     }
 
     public int CompareTo(object? obj) {
-        if (ReferenceEquals(null, obj)) return 1;
+        if (obj is null) return 1;
         return obj is MinorArcana other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(MinorArcana)}");
     }
 

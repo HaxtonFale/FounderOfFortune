@@ -19,7 +19,7 @@ public class CardSequenceTests {
         var sequence = new CardSequence(initialCard, finalCardValue);
 
         // Assert
-        Assert.Equal(expectedCount, sequence.Count);
+        sequence.Count.Should().Be(expectedCount);
     }
 
     public static IEnumerable<object[]> IndexTestData {
@@ -38,7 +38,7 @@ public class CardSequenceTests {
         var sequence = new CardSequence(initialCard, finalCardValue);
 
         // Assert
-        Assert.Equal(expectedCard, sequence[index]);
+        sequence[index].Should().Be(expectedCard);
     }
 
     [Fact]
@@ -48,6 +48,6 @@ public class CardSequenceTests {
         var expected = Enumerable.Range(3, 5).Select(i => new Card(new MajorArcana(i)));
 
         // Assert
-        Assert.Equal(expected, sequence);
+        sequence.Should().BeEquivalentTo(expected);
     }
 }

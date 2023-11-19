@@ -3,10 +3,14 @@ using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game.Collections;
 
-public class MinorArcanaStacks {
+public class MinorArcanaStacks
+{
     private readonly ImmutableDictionary<Suit, MinorArcanaStack> _stacks;
 
-    public MinorArcanaStacks() {
+    public IEnumerable<MinorArcanaStack> Stacks => _stacks.Values;
+
+    public MinorArcanaStacks()
+    {
         _stacks = ImmutableDictionary<Suit, MinorArcanaStack>.Empty
             .Add(Suit.Coins, new MinorArcanaStack(new MinorArcana(Suit.Coins, 1)))
             .Add(Suit.Goblets, new MinorArcanaStack(new MinorArcana(Suit.Goblets, 1)))
@@ -14,11 +18,13 @@ public class MinorArcanaStacks {
             .Add(Suit.Wands, new MinorArcanaStack(new MinorArcana(Suit.Wands, 1)));
     }
 
-    private MinorArcanaStacks(ImmutableDictionary<Suit, MinorArcanaStack> stacks) {
+    private MinorArcanaStacks(ImmutableDictionary<Suit, MinorArcanaStack> stacks)
+    {
         _stacks = stacks;
     }
 
-    public MinorArcanaStacks Promote(MinorArcana card) {
+    public MinorArcanaStacks Promote(MinorArcana card)
+    {
         var stack = _stacks[card.Suit];
         var newStack = stack.Promote(card);
         return new MinorArcanaStacks(_stacks.SetItem(card.Suit, newStack));

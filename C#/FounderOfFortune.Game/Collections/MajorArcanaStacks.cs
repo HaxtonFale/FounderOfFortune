@@ -24,7 +24,7 @@ public class MajorArcanaStacks {
     /// <summary>
     /// Initializes a pair of stacks into empty state.
     /// </summary>
-    internal MajorArcanaStacks() {
+    public MajorArcanaStacks() {
         Left = null;
         Right = null;
     }
@@ -33,8 +33,10 @@ public class MajorArcanaStacks {
     /// Initializes a pair of stacks into the specified state.
     /// </summary>
     /// <exception cref="ArgumentException">Thrown if <paramref name="left"/> is greater than <paramref name="right"/>.</exception>
-    internal MajorArcanaStacks(MajorArcana? left, MajorArcana? right) {
-        if (left > right) throw new ArgumentException("Left cannot be greater than right.");
+    public MajorArcanaStacks(MajorArcana? left, MajorArcana? right) {
+        if (left > right) throw new ArgumentException("Left cannot be greater than right");
+        if (left.HasValue && right.HasValue && right.Value.Value - left.Value.Value == 1)
+            throw new ArgumentException("Stacks cannot differ by 1");
         Left = left;
         Right = right;
     }
@@ -42,26 +44,26 @@ public class MajorArcanaStacks {
     /// <summary>
     /// Promotes a card to the stacks.
     /// </summary>
-    /// <param name="card">The major arcana to promote. Must be eligible for ascension, i.e. greater by 1 than <see cref="Left"/> or lower by 1 than <see cref="Right"/>.</param>
+    /// <param name="card">The major arcana to promote. Must be eligible for promotion, i.e. greater by 1 than <see cref="Left"/> or lower by 1 than <see cref="Right"/>.</param>
     /// <returns>Updated pair of stacks after <paramref name="card"/> was promoted.</returns>
-    /// <exception cref="ArgumentException">Thrown if the given card is not eligible for ascension.</exception>
+    /// <exception cref="ArgumentException">Thrown if the given card is not eligible for promotion.</exception>
     /// <seealso cref="CanPromote"/>
-    internal MajorArcanaStacks Promote(MajorArcana card) {
+    public MajorArcanaStacks Promote(MajorArcana card) {
         var success = false;
         var newLeft = Left;
-        if ((Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1)) {
+        if (CanPromoteLeft(card)) {
             newLeft = card;
             success = true;
         }
 
         var newRight = Right;
-        if ((Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1)) {
+        if (CanPromoteRight(card)) {
             newRight = card;
             success = true;
         }
 
         if (success) return new MajorArcanaStacks(newLeft, newRight);
-        throw new ArgumentException("Card value ineligible for ascension", nameof(card));
+        throw new ArgumentException("Card value ineligible for promotion", nameof(card));
     }
 
     /// <summary>
@@ -73,7 +75,11 @@ public class MajorArcanaStacks {
 
     public bool CanPromote(MajorArcana card) {
         if (Left != null && Right != null && Left == Right) return false;
-        return (Left == null && card.Value == 0) || (Left != null && card.Value == Left.Value.Value + 1) ||
-               (Right == null && card.Value == 21) || (Right != null && card.Value == Right.Value.Value + 1);
+        return CanPromoteLeft(card) || CanPromoteRight(card);
     }
+
+    private bool CanPromoteLeft(MajorArcana card) => (Left == null && card.Value == 0) || (Left != null && card - Left == 1);
+
+    private bool CanPromoteRight(MajorArcana card) =>
+        (Right == null && card.Value == 21) || (Right != null && Right - card == 1);
 }

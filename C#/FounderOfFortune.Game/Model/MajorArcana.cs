@@ -5,14 +5,41 @@ namespace FounderOfFortune.Game.Model;
 /// <summary>
 /// Represents one of the major arcana: named cards valued from 0 to 21.
 /// </summary>
-public readonly struct MajorArcana : IComparable<MajorArcana>, IComparable, IEquatable<MajorArcana>
-{
+public readonly struct MajorArcana : IComparable<MajorArcana>, IComparable, IEquatable<MajorArcana> {
+    private static readonly List<string> Names = new()
+    {
+        "The Fool",
+        "The Magician",
+        "The Priestess",
+        "The Empress",
+        "The Emperor",
+        "The Hierophant",
+        "The Lovers",
+        "The Chariot",
+        "Strength",
+        "The Hermit",
+        "The Wheel",
+        "Justice",
+        "The Hanged Man",
+        "Death",
+        "Temperance",
+        "The Devil",
+        "The Tower",
+        "The Stars",
+        "The Moon",
+        "The Sun",
+        "Judgement",
+        "The World"
+    };
+
     public int Value { get; }
 
     public MajorArcana(int value) {
         if (value is < 0 or > 21) throw new ArgumentOutOfRangeException(nameof(value), "Value must be between 0 and 21.");
         Value = value;
     }
+
+    public string FullName => $"{this} - {Names[Value]}";
 
     public override string ToString() => Value == 0 ? "0" : Value.ToRoman();
 
@@ -53,6 +80,7 @@ public readonly struct MajorArcana : IComparable<MajorArcana>, IComparable, IEqu
 
     public static MajorArcana operator +(MajorArcana card, int change) => new(card.Value + change);
     public static MajorArcana operator -(MajorArcana card, int change) => new(card.Value - change);
+    public static int operator -(MajorArcana card, MajorArcana other) => card.Value - other.Value;
 
     #endregion
 }

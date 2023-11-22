@@ -7,7 +7,7 @@ namespace FounderOfFortune.Game.Collections;
 /// Represents a single stack (of 11) on the tableau.
 /// While it begins with an arbitrary assortment of cards, it will only accept cards if it's empty, or if the first incoming card can be placed on the one on the top.
 /// </summary>
-public class TableauStack {
+public class TableauStack : IEquatable<TableauStack> {
     public readonly ImmutableList<Card> Cards;
     public readonly Card? TopCard;
 
@@ -22,6 +22,8 @@ public class TableauStack {
         if (cards.Count == 0) { TopCard = null; }
         else { TopCard = cards.Last(); }
     }
+
+    public bool IsEmpty => TopCard == null;
 
     /// <summary>
     /// Take a sequence of consecutive cards from the top of the stack.
@@ -81,4 +83,28 @@ public class TableauStack {
     {
         return cards.Aggregate(this, (current, card) => current.PlaceCard(card));
     }
+
+    #region IEquatable
+
+    public bool Equals(TableauStack? other)
+    {
+        if (other is null) return false;
+
+        return ReferenceEquals(this, other) || Cards.Equals(other.Cards);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+
+        return ReferenceEquals(this, obj) || obj.GetType() == GetType() && Equals((TableauStack) obj);
+    }
+
+    public override int GetHashCode() => Cards.GetHashCode();
+
+    public static bool operator ==(TableauStack? left, TableauStack? right) => Equals(left, right);
+
+    public static bool operator !=(TableauStack? left, TableauStack? right) => !Equals(left, right);
+
+    #endregion
 }

@@ -11,4 +11,13 @@
     <ProjectReference Include="..\FounderOfFortune.Game\FounderOfFortune.Game.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Cocona" Version="2.2.0" />
+    <PackageReference Include="ConcurrentPriorityQueue" Version="2.1.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Serilog" Version="3.1.1" />
+    <PackageReference Include="Serilog.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="5.0.0" />
+  </ItemGroup>
+
 </Project>

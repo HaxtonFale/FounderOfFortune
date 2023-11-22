@@ -3,39 +3,41 @@ using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game.Collections;
 
-public class CardSequence : IReadOnlyList<Card> {
-    private readonly Card _initialCard;
-    private readonly int _finalCardValue;
+public class CardSequence(Card initialCard, int finalCardValue) : IReadOnlyList<Card>
+{
+    private int Direction => Math.Sign(finalCardValue - initialCard.Value);
+    private bool IsMajorArcana => initialCard.IsMajorArcana;
 
-    public CardSequence(Card initialCard, int finalCardValue) {
-        _initialCard = initialCard;
-        _finalCardValue = finalCardValue;
-    }
+    #region IReadOnlyList
 
-    private int Direction => Math.Sign(_finalCardValue - _initialCard.Value);
-    private bool IsMajorArcana => _initialCard.IsMajorArcana;
-
-    public IEnumerator<Card> GetEnumerator() {
-        var cardValue = _initialCard.Value;
-        yield return _initialCard;
-        while (cardValue != _finalCardValue) {
+    public IEnumerator<Card> GetEnumerator()
+    {
+        var cardValue = initialCard.Value;
+        yield return initialCard;
+        while (cardValue != finalCardValue)
+        {
             cardValue += Direction;
-            yield return CreateAtOffset(cardValue - _initialCard.Value);
+            yield return CreateAtOffset(cardValue - initialCard.Value);
         }
     }
 
-    private Card CreateAtOffset(int offset) => IsMajorArcana ? new Card(_initialCard.AsMajorArcana + offset) : new Card(_initialCard.AsMinorArcana + offset);
+    private Card CreateAtOffset(int offset) => IsMajorArcana ? new Card(initialCard.AsMajorArcana + offset) : new Card(initialCard.AsMinorArcana + offset);
 
-    IEnumerator IEnumerable.GetEnumerator() {
+    IEnumerator IEnumerable.GetEnumerator()
+    {
         return GetEnumerator();
     }
 
-    public int Count => Math.Abs(_initialCard.Value - _finalCardValue) + 1;
+    public int Count => Math.Abs(initialCard.Value - finalCardValue) + 1;
 
-    public Card this[int index] {
-        get {
-            if (index >= Count) throw new ArgumentOutOfRangeException(nameof(index));
+    public Card this[int index]
+    {
+        get
+        {
+            ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual(index, Count, nameof(index));
             return CreateAtOffset(index * Direction);
         }
     }
+
+    #endregion
 }

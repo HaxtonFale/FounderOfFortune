@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "FounderOfFortune.Solver": {
+      "commandName": "Project",
+      "commandLineArgs": "--verbose"
+    }
+  }
+}

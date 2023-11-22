@@ -4,7 +4,7 @@ using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Game;
 
-public readonly struct BoardState
+public readonly struct BoardState : IEquatable<BoardState>
 {
     public readonly MajorArcanaStacks MajorArcanaStacks;
     public readonly MinorArcanaStacks MinorArcanaStacks;
@@ -152,4 +152,22 @@ public readonly struct BoardState
 
         return new BoardState(MajorArcanaStacks, MinorArcanaStacks, FreeCell, updatedTableau);
     }
+
+    #region IEquatable
+
+    public bool Equals(BoardState other) =>
+        MajorArcanaStacks.Equals(other.MajorArcanaStacks)
+        && MinorArcanaStacks.Equals(other.MinorArcanaStacks)
+        && Nullable.Equals(FreeCell, other.FreeCell)
+        && TableauStacks.Equals(other.TableauStacks);
+
+    public override bool Equals(object? obj) => obj is BoardState other && Equals(other);
+
+    public override int GetHashCode() => HashCode.Combine(MajorArcanaStacks, MinorArcanaStacks, FreeCell, TableauStacks);
+
+    public static bool operator ==(BoardState left, BoardState right) => left.Equals(right);
+
+    public static bool operator !=(BoardState left, BoardState right) => !left.Equals(right);
+
+    #endregion
 }

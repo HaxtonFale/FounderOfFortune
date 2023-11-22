@@ -42,7 +42,7 @@ public class CardSequenceTests {
     }
 
     [Fact]
-    private void EnumerationTest() {
+    public void EnumerationTest() {
         // Arrange
         var sequence = new CardSequence(new MajorArcana(3), 7);
         var expected = Enumerable.Range(3, 5).Select(i => new Card(new MajorArcana(i)));

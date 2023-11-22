@@ -12,7 +12,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\.editorconfig = ..\.editorconfig
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FounderOfFortune.Solver", "FounderOfFortune.Solver\FounderOfFortune.Solver.csproj", "{D707B25E-70B1-4E78-88A9-1D3567615D4F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FounderOfFortune.Solver", "FounderOfFortune.Solver\FounderOfFortune.Solver.csproj", "{D707B25E-70B1-4E78-88A9-1D3567615D4F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FounderOfFortune.Solver.Test", "FounderOfFortune.Solver.Test\FounderOfFortune.Solver.Test.csproj", "{BCE5C3AE-37AE-4C05-8CB2-40BEBF0AD817}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{D707B25E-70B1-4E78-88A9-1D3567615D4F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D707B25E-70B1-4E78-88A9-1D3567615D4F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D707B25E-70B1-4E78-88A9-1D3567615D4F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BCE5C3AE-37AE-4C05-8CB2-40BEBF0AD817}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BCE5C3AE-37AE-4C05-8CB2-40BEBF0AD817}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BCE5C3AE-37AE-4C05-8CB2-40BEBF0AD817}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BCE5C3AE-37AE-4C05-8CB2-40BEBF0AD817}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

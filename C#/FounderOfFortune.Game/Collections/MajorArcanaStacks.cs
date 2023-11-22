@@ -9,7 +9,8 @@ namespace FounderOfFortune.Game.Collections;
 /// <remarks>
 /// Created as an immutable collection to make backtracking easier.
 /// </remarks>
-public class MajorArcanaStacks {
+public class MajorArcanaStacks : IEquatable<MajorArcanaStacks>
+{
     /// <summary>
     /// The lower end of the stack.<br />
     /// When empty, it accepts 0; otherwise, it will only take a card whose value is higher than it by 1.
@@ -24,7 +25,8 @@ public class MajorArcanaStacks {
     /// <summary>
     /// Initializes a pair of stacks into empty state.
     /// </summary>
-    public MajorArcanaStacks() {
+    public MajorArcanaStacks()
+    {
         Left = null;
         Right = null;
     }
@@ -33,7 +35,8 @@ public class MajorArcanaStacks {
     /// Initializes a pair of stacks into the specified state.
     /// </summary>
     /// <exception cref="ArgumentException">Thrown if <paramref name="left"/> is greater than <paramref name="right"/>.</exception>
-    public MajorArcanaStacks(MajorArcana? left, MajorArcana? right) {
+    public MajorArcanaStacks(MajorArcana? left, MajorArcana? right)
+    {
         if (left > right) throw new ArgumentException("Left cannot be greater than right");
         if (left.HasValue && right.HasValue && right.Value.Value - left.Value.Value == 1)
             throw new ArgumentException("Stacks cannot differ by 1");
@@ -48,16 +51,19 @@ public class MajorArcanaStacks {
     /// <returns>Updated pair of stacks after <paramref name="card"/> was promoted.</returns>
     /// <exception cref="ArgumentException">Thrown if the given card is not eligible for promotion.</exception>
     /// <seealso cref="CanPromote"/>
-    public MajorArcanaStacks Promote(MajorArcana card) {
+    public MajorArcanaStacks Promote(MajorArcana card)
+    {
         var success = false;
         var newLeft = Left;
-        if (CanPromoteLeft(card)) {
+        if (CanPromoteLeft(card))
+        {
             newLeft = card;
             success = true;
         }
 
         var newRight = Right;
-        if (CanPromoteRight(card)) {
+        if (CanPromoteRight(card))
+        {
             newRight = card;
             success = true;
         }
@@ -73,7 +79,8 @@ public class MajorArcanaStacks {
     /// <returns></returns>
     internal MajorArcanaStacks PromoteRange(IEnumerable<MajorArcana> cards) => cards.Aggregate(this, (stacks, card) => stacks.Promote(card));
 
-    public bool CanPromote(MajorArcana card) {
+    public bool CanPromote(MajorArcana card)
+    {
         if (Left != null && Right != null && Left == Right) return false;
         return CanPromoteLeft(card) || CanPromoteRight(card);
     }
@@ -82,4 +89,32 @@ public class MajorArcanaStacks {
 
     private bool CanPromoteRight(MajorArcana card) =>
         (Right == null && card.Value == 21) || (Right != null && Right - card == 1);
+
+    #region IEquatable
+
+    public bool Equals(MajorArcanaStacks? other)
+    {
+        if (other is null) return false;
+
+        if (ReferenceEquals(this, other)) return true;
+
+        return Nullable.Equals(Left, other.Left) && Nullable.Equals(Right, other.Right);
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+
+        if (ReferenceEquals(this, obj)) return true;
+
+        return obj is MajorArcanaStacks stacks && Equals(stacks);
+    }
+
+    public override int GetHashCode() => HashCode.Combine(Left, Right);
+
+    public static bool operator ==(MajorArcanaStacks? left, MajorArcanaStacks? right) => Equals(left, right);
+
+    public static bool operator !=(MajorArcanaStacks? left, MajorArcanaStacks? right) => !Equals(left, right);
+
+    #endregion
 }

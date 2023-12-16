@@ -1,0 +1,3 @@
+[submodule "Solver.Core"]
+	path = Solver.Core
+	url = git@github.com:HaxtonFale/Solver.Core.git

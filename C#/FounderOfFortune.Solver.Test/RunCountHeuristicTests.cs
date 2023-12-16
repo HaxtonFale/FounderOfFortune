@@ -10,11 +10,8 @@ public class RunCountHeuristicTests : HeuristicTestsBase
     [Fact]
     public void EmptyBoardReturnsZero()
     {
-        // Arrange
-        var solution = new Solution(EmptyBoard);
-
         // Act
-        var value = Heuristics.RunCount(solution);
+        var value = Heuristics.RunCount(EmptyBoard);
 
         // Assert
         value.Should().Be(0);
@@ -25,10 +22,10 @@ public class RunCountHeuristicTests : HeuristicTestsBase
     {
         // Arrange
         var stacks = EmptyStacks.SetItem(0, EmptyStacks[0].PlaceCard(new MajorArcana(3)));
-        var solution = new Solution(new BoardState(stacks));
+        var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.RunCount(solution);
+        var value = Heuristics.RunCount(board);
 
         // Assert
         value.Should().Be(1);
@@ -40,7 +37,7 @@ public class RunCountHeuristicTests : HeuristicTestsBase
         // Arrange
         var sequence = new CardSequence(new MajorArcana(3), 10);
         var stacks = EmptyStacks.SetItem(0, EmptyStacks[0].PlaceRange(sequence));
-        var solution = new Solution(new BoardState(stacks));
+        var solution = new BoardState(stacks);
 
         // Act
         var value = Heuristics.RunCount(solution);
@@ -56,10 +53,10 @@ public class RunCountHeuristicTests : HeuristicTestsBase
         var sequence =
             new CardSequence(new MajorArcana(3), 10).Concat(new CardSequence(new MinorArcana(Suit.Coins, 10), 3));
         var stacks = EmptyStacks.SetItem(0, new TableauStack(sequence.ToImmutableList()));
-        var solution = new Solution(new BoardState(stacks));
+        var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.RunCount(solution);
+        var value = Heuristics.RunCount(board);
 
         // Assert
         value.Should().Be(2);
@@ -70,10 +67,10 @@ public class RunCountHeuristicTests : HeuristicTestsBase
     {
         // Arrange
         var stacks = EmptyStacks.Select(s => s.PlaceCard(new MajorArcana(3))).ToImmutableList();
-        var solution = new Solution(new BoardState(stacks));
+        var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.RunCount(solution);
+        var value = Heuristics.RunCount(board);
 
         // Assert
         value.Should().Be(stacks.Count);

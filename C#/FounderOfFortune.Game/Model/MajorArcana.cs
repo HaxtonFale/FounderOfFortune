@@ -32,6 +32,9 @@ public readonly struct MajorArcana : IComparable<MajorArcana>, IComparable, IEqu
         "The World"
     };
 
+    public const int MinValue = 0;
+    public const int MaxValue = 21;
+
     public int Value { get; }
 
     public MajorArcana(int value) {
@@ -48,7 +51,7 @@ public readonly struct MajorArcana : IComparable<MajorArcana>, IComparable, IEqu
     public int CompareTo(MajorArcana other) => Value.CompareTo(other.Value);
 
     public int CompareTo(object? obj) {
-        if (ReferenceEquals(null, obj)) return 1;
+        if (obj is null) return 1;
         return obj is MajorArcana other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(MajorArcana)}");
     }
 

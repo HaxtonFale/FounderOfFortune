@@ -1,14 +1,14 @@
-﻿using FounderOfFortune.Game.Model;
-using FounderOfFortune.Solver.Model;
+﻿using FounderOfFortune.Game;
+using FounderOfFortune.Game.Model;
 
 namespace FounderOfFortune.Solver;
 
 public static class Heuristics
 {
-    public static int RunCount(Solution solution)
+    public static int RunCount(BoardState board)
     {
         var runs = 0;
-        foreach (var stack in solution.Board.TableauStacks.Select(stack => stack.Cards).Where(cards => cards.Count != 0))
+        foreach (var stack in board.TableauStacks.Select(stack => stack.Cards).Where(cards => cards.Count != 0))
         {
             runs++;
             if (stack.Count == 1) continue;
@@ -22,11 +22,10 @@ public static class Heuristics
         return runs;
     }
 
-    public static int TerminalDepth(Solution solution)
+    public static int TerminalDepth(BoardState board)
     {
         var totalDepth = 0;
         var terminals = new HashSet<Card>();
-        var board = solution.Board;
         if (board.MajorArcanaStacks.Left == null) terminals.Add(new MajorArcana(0));
         if (board.MajorArcanaStacks.Right == null) terminals.Add(new MajorArcana(21));
         if (board.MajorArcanaStacks is { Left: not null, Right: not null } &&
@@ -53,5 +52,5 @@ public static class Heuristics
         return totalDepth;
     }
 
-    public static int DepthAndRuns(Solution solution) => RunCount(solution) * 3 + TerminalDepth(solution) * 2;
+    public static int DepthAndRuns(BoardState board) => RunCount(board) * 1000 + TerminalDepth(board);
 }

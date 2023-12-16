@@ -10,11 +10,8 @@ public class TerminalDepthHeuristicTests : HeuristicTestsBase
     [Fact]
     public void EmptyBoardReturnsZero()
     {
-        // Arrange
-        var solution = new Solution(EmptyBoard);
-
         // Act
-        var value = Heuristics.TerminalDepth(solution);
+        var value = Heuristics.TerminalDepth(EmptyBoard);
 
         // Assert
         value.Should().Be(0);
@@ -26,10 +23,10 @@ public class TerminalDepthHeuristicTests : HeuristicTestsBase
         // Arrange
         var cards = new List<Card> { new MajorArcana(0), new MinorArcana(Suit.Coins, 5) };
         var stacks = EmptyStacks.SetItem(0, new TableauStack(cards.ToImmutableList()));
-        var solution = new Solution(new BoardState(stacks));
+        var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.TerminalDepth(solution);
+        var value = Heuristics.TerminalDepth(board);
 
         // Assert
         value.Should().Be(2);

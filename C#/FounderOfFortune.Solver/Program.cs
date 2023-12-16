@@ -3,12 +3,19 @@ using Cocona;
 using FounderOfFortune.Game;
 using FounderOfFortune.Game.Collections;
 using FounderOfFortune.Game.Model;
-using FounderOfFortune.Solver.Parallel;
+using FounderOfFortune.Solver;
+using FounderOfFortune.Solver.Model;
+using FounderOfFortune.Solver.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
+using Solver.Core;
+using Solver.Core.Base;
+using Solver.Core.Serialization;
+
+const string dumpFilePath = @"D:\FF solving\dump.bin";
 
 var builder = CoconaApp.CreateBuilder(args);
 var logLevelSwitch = new LoggingLevelSwitch();
@@ -22,10 +29,11 @@ builder.Host.UseSerilog((_, _, config) =>
 
 builder.Services
     .AddSingleton(provider =>
-{
-    var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
-    return loggerFactory.CreateLogger("Founder");
-});
+    {
+        var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
+        return loggerFactory.CreateLogger("Founder");
+    }).AddSingleton<Solver<BoardState, GameAction>, AStarSolver<BoardState, GameAction, int>>()
+    .AddSingleton(Heuristics.DepthAndRuns);
 
 var app = builder.Build();
 app.AddCommand(async (CoconaAppContext ctx, Microsoft.Extensions.Logging.ILogger logger, bool verbose, bool moveSingleCards) =>
@@ -45,22 +53,18 @@ app.AddCommand(async (CoconaAppContext ctx, Microsoft.Extensions.Logging.ILogger
  """;
     if (verbose) logLevelSwitch.MinimumLevel = LogEventLevel.Verbose;
 
+    var solver = new AStarSolver<BoardState, GameAction, int>(board => board.GetValidActions(),
+        (board, action) => board.PerformAction(action, moveSingleCards), board => board.IsComplete(),
+        Heuristics.DepthAndRuns);
+
+    var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+
     var board = GenerateBoardState(cards);
-    var solver = new TaskSolver();
-    var solution = await solver.TrySolve(board, moveSingleCards, ctx.CancellationToken);
-    if (solution == null)
-    {
-        logger.LogInformation("No solution found.");
-    }
-    else
-    {
-        logger.LogInformation("Solution found:");
-        var step = 1;
-        foreach (var line in solution.RenderSolution())
-        {
-            logger.LogInformation("{Step}. {Line}", step++, line);
-        }
-    }
+    var solution = solver.TrySolve(board, tokenSource.Token);
+    logger.LogInformation(solution == null ? "No solution found." : "Solution found.");
+    await using var stream = new FileStream(dumpFilePath, FileMode.Create);
+    var serializer = new SolutionSerializer<BoardState, GameAction>(new BoardSerializer());
+    await serializer.Serialize(solver, stream);
 });
 
 await app.RunAsync();

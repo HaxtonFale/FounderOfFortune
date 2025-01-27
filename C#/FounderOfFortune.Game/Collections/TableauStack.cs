@@ -66,7 +66,7 @@ public class TableauStack : IEquatable<TableauStack> {
     /// <returns>Stack updated with the new card.</returns>
     /// <exception cref="InvalidOperationException">Thrown when attempting to place an invalid card.</exception>
     public TableauStack PlaceCard(Card card) {
-        if (TopCard == null || TopCard.Value.IsAdjacentTo(card)) {
+        if (TopCard == null || TopCard.IsAdjacentTo(card)) {
             return new TableauStack(Cards.Add(card));
         }
 

@@ -12,19 +12,18 @@ using Serilog;
 using Serilog.Core;
 using Serilog.Events;
 using Solver.Core;
-using Solver.Core.Base;
 using Solver.Core.Serialization;
+
+using MSLogger = Microsoft.Extensions.Logging.ILogger;
 
 const string dumpFilePath = @"D:\FF solving\dump.bin";
 
 var builder = CoconaApp.CreateBuilder(args);
 var logLevelSwitch = new LoggingLevelSwitch();
-builder.Host.UseSerilog((_, _, config) =>
+builder.Host.UseSerilog((context, _, config) =>
 {
-    config.MinimumLevel.ControlledBy(logLevelSwitch)
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Information)
-        .Enrich.FromLogContext()
-        .WriteTo.Console();
+    config.ReadFrom.Configuration(context.Configuration)
+        .MinimumLevel.ControlledBy(logLevelSwitch);
 });
 
 builder.Services
@@ -32,11 +31,16 @@ builder.Services
     {
         var loggerFactory = provider.GetRequiredService<ILoggerFactory>();
         return loggerFactory.CreateLogger("Founder");
-    }).AddSingleton<Solver<BoardState, GameAction>, AStarSolver<BoardState, GameAction, int>>()
+    })
+    .AddSingleton<IStateSerializer<BoardState, GameAction>, BoardSerializer>()
+    .AddSingleton<SolutionSerializer<BoardState, GameAction>>()
+    .AddSingleton<Visualizer>()
     .AddSingleton(Heuristics.DepthAndRuns);
 
 var app = builder.Build();
-app.AddCommand(async (CoconaAppContext ctx, Microsoft.Extensions.Logging.ILogger logger, bool verbose, bool moveSingleCards) =>
+app.AddCommand("solve", async (CoconaAppContext ctx, SolutionSerializer<BoardState, GameAction> serializer, MSLogger logger,
+    [Option('s')] bool singleCard, [Option] bool serialize, [Option] int? timeout,
+    [Option('v')] LogEventLevel verbosity = LogEventLevel.Information) =>
 {
     const string cards = """
  C7,19,S6,S11,C6,17,4
@@ -51,20 +55,47 @@ app.AddCommand(async (CoconaAppContext ctx, Microsoft.Extensions.Logging.ILogger
  C3,2,S2,G2,W13,S12,C12
  S3,15,C8,G4,G6,W6,5
  """;
-    if (verbose) logLevelSwitch.MinimumLevel = LogEventLevel.Verbose;
+     logLevelSwitch.MinimumLevel = verbosity;
 
-    var solver = new AStarSolver<BoardState, GameAction, int>(board => board.GetValidActions(),
-        (board, action) => board.PerformAction(action, moveSingleCards), board => board.IsComplete(),
+    Solver.Core.Base.Solver<BoardState, GameAction> solver = new AStarSolver<BoardState, GameAction, int>(board => board.GetValidActions(),
+        (board, action) => board.PerformAction(action, singleCard), board => board.IsComplete(),
         Heuristics.DepthAndRuns);
 
-    var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
-
     var board = GenerateBoardState(cards);
-    var solution = solver.TrySolve(board, tokenSource.Token);
+    Solution<BoardState, GameAction>? solution;
+
+    if (timeout != null)
+    {
+        var tokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(timeout.Value));
+        solution = solver.TrySolve(board, tokenSource.Token);
+    }
+    else
+    {
+        solution = solver.TrySolve(board, ctx.CancellationToken);
+    }
+
     logger.LogInformation(solution == null ? "No solution found." : "Solution found.");
-    await using var stream = new FileStream(dumpFilePath, FileMode.Create);
-    var serializer = new SolutionSerializer<BoardState, GameAction>(new BoardSerializer());
-    await serializer.Serialize(solver, stream);
+    if (serialize)
+    {
+        await using var stream = new FileStream(dumpFilePath, FileMode.Create);
+        await serializer.Serialize(solver, stream, ctx.CancellationToken);
+    }
+
+    return Task.CompletedTask;
+});
+app.AddCommand("view", async (CoconaAppContext ctx, Visualizer visualizer, MSLogger logger,
+    [Option('v')] LogEventLevel verbosity = LogEventLevel.Information) =>
+{
+    logLevelSwitch.MinimumLevel = verbosity;
+
+    var start = DateTime.Now;
+    await visualizer.Load(dumpFilePath, ctx.CancellationToken);
+    var end = DateTime.Now;
+    logger.LogInformation("Solver dump loaded in {Seconds} seconds.", (end - start).TotalSeconds);
+
+    visualizer.InteractiveSession();
+
+    return Task.CompletedTask;
 });
 
 await app.RunAsync();

@@ -1,8 +1,16 @@
 {
   "profiles": {
-    "FounderOfFortune.Solver": {
+    "WSL": {
+      "commandName": "WSL2",
+      "distributionName": ""
+    },
+    "solve": {
       "commandName": "Project",
-      "commandLineArgs": "--verbose"
+      "commandLineArgs": "solve --verbose --serialize --timeout 3"
+    },
+    "view": {
+      "commandName": "Project",
+      "commandLineArgs": "view -v Debug"
     }
   }
 }

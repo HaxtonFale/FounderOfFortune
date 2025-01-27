@@ -37,9 +37,13 @@ public class MajorArcanaStacks : IEquatable<MajorArcanaStacks>
     /// <exception cref="ArgumentException">Thrown if <paramref name="left"/> is greater than <paramref name="right"/>.</exception>
     public MajorArcanaStacks(MajorArcana? left, MajorArcana? right)
     {
-        if (left > right) throw new ArgumentException("Left cannot be greater than right");
-        if (left.HasValue && right.HasValue && right.Value.Value - left.Value.Value == 1)
-            throw new ArgumentException("Stacks cannot differ by 1");
+        if (left != null && right != null)
+        {
+            if (left > right)
+                throw new ArgumentException("Left cannot be greater than right");
+            if (right.Value - left.Value == 1)
+                throw new ArgumentException("Stacks cannot differ by 1");
+        }
         Left = left;
         Right = right;
     }

@@ -17,7 +17,7 @@ public class TableauStackTests {
     [Fact]
     public void TakeFullStackIfCardsMakeASequence() {
         // Arrange
-        var cards = Enumerable.Range(1, 10).Select(n => new Card(new MajorArcana(n))).ToImmutableList();
+        var cards = Enumerable.Range(1, 10).Select(n => new MajorArcana(n)).ToImmutableList<Card>();
         var stack = new TableauStack(cards);
 
         // Act
@@ -31,8 +31,8 @@ public class TableauStackTests {
     [Fact]
     public void TakeCorrectSequenceFromMixedStack() {
         // Arrange
-        var cards = Enumerable.Range(3, 5).Select(n => new Card(new MinorArcana(Suit.Coins, n))).ToImmutableList();
-        var topCards = Enumerable.Range(5, 3).Select(n => new Card(new MinorArcana(Suit.Swords, n))).ToImmutableList();
+        var cards = Enumerable.Range(3, 5).Select(n => new MinorArcana(Suit.Coins, n)).ToImmutableList<Card>();
+        var topCards = Enumerable.Range(5, 3).Select(n => new MinorArcana(Suit.Swords, n)).ToImmutableList<Card>();
         var stack = new TableauStack(cards.AddRange(topCards));
 
         // Act
@@ -103,7 +103,7 @@ public class TableauStackTests {
     [Fact]
     public void PlaceAnyCardRangeOnEmptyStack() {
         // Arrange
-        var cards = Enumerable.Range(4, 7).Select(n => new Card(new MinorArcana(Suit.Coins, n))).ToList();
+        var cards = Enumerable.Range(4, 7).Select(n => new MinorArcana(Suit.Coins, n)).ToList();
         var stack = new TableauStack();
 
         // Act
@@ -117,7 +117,7 @@ public class TableauStackTests {
     public void PlaceValidCardRangeOnNonEmptyStack() {
         // Arrange
         var threeOfCoins = ImmutableList<Card>.Empty.Add(new MinorArcana(Suit.Coins, 3));
-        var cards = Enumerable.Range(4, 7).Select(n => new Card(new MinorArcana(Suit.Coins, n))).ToImmutableList();
+        var cards = Enumerable.Range(4, 7).Select(n => new MinorArcana(Suit.Coins, n)).ToImmutableList();
         var stack = new TableauStack(threeOfCoins);
 
         // Act
@@ -131,7 +131,7 @@ public class TableauStackTests {
     public void PlaceInvalidCardRangeOnNonEmptyStack() {
         // Arrange
         var threeOfCoins = ImmutableList<Card>.Empty.Add(new MinorArcana(Suit.Goblets, 3));
-        var cards = Enumerable.Range(4, 7).Select(n => new Card(new MinorArcana(Suit.Coins, n)));
+        var cards = Enumerable.Range(4, 7).Select(n => new MinorArcana(Suit.Coins, n));
         var stack = new TableauStack(threeOfCoins);
 
         // Assert

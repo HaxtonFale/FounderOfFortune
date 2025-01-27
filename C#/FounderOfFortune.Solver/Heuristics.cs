@@ -31,8 +31,8 @@ public static class Heuristics
         if (board.MajorArcanaStacks is { Left: not null, Right: not null } &&
             board.MajorArcanaStacks.Left != board.MajorArcanaStacks.Right)
         {
-            terminals.Add(board.MajorArcanaStacks.Left.Value + 1);
-            terminals.Add(board.MajorArcanaStacks.Right.Value - 1);
+            terminals.Add(board.MajorArcanaStacks.Left + 1);
+            terminals.Add(board.MajorArcanaStacks.Right - 1);
         }
 
         foreach (var suit in Enum.GetValues<Suit>())

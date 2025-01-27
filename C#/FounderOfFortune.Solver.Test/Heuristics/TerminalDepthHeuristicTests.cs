@@ -3,7 +3,7 @@ using FounderOfFortune.Game;
 using FounderOfFortune.Game.Collections;
 using FounderOfFortune.Game.Model;
 
-namespace FounderOfFortune.Solver.Test;
+namespace FounderOfFortune.Solver.Test.Heuristics;
 
 public class TerminalDepthHeuristicTests : HeuristicTestsBase
 {
@@ -11,7 +11,7 @@ public class TerminalDepthHeuristicTests : HeuristicTestsBase
     public void EmptyBoardReturnsZero()
     {
         // Act
-        var value = Heuristics.TerminalDepth(EmptyBoard);
+        var value = Solver.Heuristics.TerminalDepth(EmptyBoard);
 
         // Assert
         value.Should().Be(0);
@@ -26,7 +26,7 @@ public class TerminalDepthHeuristicTests : HeuristicTestsBase
         var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.TerminalDepth(board);
+        var value = Solver.Heuristics.TerminalDepth(board);
 
         // Assert
         value.Should().Be(2);

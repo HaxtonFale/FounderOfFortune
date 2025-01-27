@@ -26,18 +26,18 @@ public readonly struct BoardState : IEquatable<BoardState>
         do
         {
             promoted = false;
-            if (newFreeCell.HasValue)
+            if (newFreeCell!= null)
             {
-                if (newFreeCell.Value.IsMajorArcana && newMajorArcanaStacks.CanPromote(newFreeCell.Value.AsMajorArcana))
+                if (newFreeCell is MajorArcana major && newMajorArcanaStacks.CanPromote(major))
                 {
-                    newMajorArcanaStacks = newMajorArcanaStacks.Promote(newFreeCell.Value.AsMajorArcana);
+                    newMajorArcanaStacks = newMajorArcanaStacks.Promote(major);
                     newFreeCell = null;
                     promoted = true;
                 }
-                else if (newFreeCell.Value.IsMinorArcana &&
-                         newMinorArcanaStacks.CanPromote(newFreeCell.Value.AsMinorArcana))
+                else if (newFreeCell is MinorArcana minor &&
+                         newMinorArcanaStacks.CanPromote(minor))
                 {
-                    newMinorArcanaStacks = newMinorArcanaStacks.Promote(newFreeCell.Value.AsMinorArcana);
+                    newMinorArcanaStacks = newMinorArcanaStacks.Promote(minor);
                     newFreeCell = null;
                     promoted = true;
                 }
@@ -50,21 +50,20 @@ public readonly struct BoardState : IEquatable<BoardState>
                 var card = newTableauStacks[i].TopCard;
                 if (card == null) continue;
 
-                var topCard = card.Value;
-                if (topCard.IsMajorArcana && newMajorArcanaStacks.CanPromote(topCard.AsMajorArcana))
+                if (card is MajorArcana major && newMajorArcanaStacks.CanPromote(major))
                 {
                     newMajorArcanaStacks =
                         newMajorArcanaStacks.PromoteRange(newTableauStacks[i]
-                            .TakeCards(out var updatedStack).Select(c => c.AsMajorArcana));
+                            .TakeCards(out var updatedStack).Cast<MajorArcana>());
                     newTableauStacks = newTableauStacks.SetItem(i, updatedStack);
                     promoted = true;
                     break;
                 }
 
-                if (topCard.IsMinorArcana && newMinorArcanaStacks.CanPromote(topCard.AsMinorArcana) && newFreeCell == null)
+                if (newFreeCell == null && card is MinorArcana minor && newMinorArcanaStacks.CanPromote(minor))
                 {
                     newMinorArcanaStacks = newMinorArcanaStacks.PromoteRange(newTableauStacks[i]
-                        .TakeCards(out var updatedStack).Select(c => c.AsMinorArcana));
+                        .TakeCards(out var updatedStack).Cast<MinorArcana>());
                     newTableauStacks = newTableauStacks.SetItem(i, updatedStack);
                     promoted = true;
                     break;
@@ -87,7 +86,7 @@ public readonly struct BoardState : IEquatable<BoardState>
     {
         if (source is < 0 or > 10)
             throw new ArgumentOutOfRangeException(nameof(source), "Source stack must be between 0 and 10");
-        if (FreeCell.HasValue)
+        if (FreeCell != null)
             throw new InvalidOperationException("Cannot store a card when free cell already occupied");
 
         var storedCard = TableauStacks[source].TakeCard(out var updatedTableauStack);
@@ -100,14 +99,14 @@ public readonly struct BoardState : IEquatable<BoardState>
     {
         if (destination is < 0 or > 10)
             throw new ArgumentOutOfRangeException(nameof(destination), "Destination stack must be between 0 and 10");
-        if (!FreeCell.HasValue)
+        if (FreeCell == null)
             throw new InvalidOperationException("Cannot retrieve a card when free cell is empty");
 
         var destinationStack = TableauStacks[destination];
-        if (destinationStack.TopCard != null && !destinationStack.TopCard.Value.IsAdjacentTo(FreeCell.Value))
+        if (destinationStack.TopCard != null && !destinationStack.TopCard.IsAdjacentTo(FreeCell))
             throw new InvalidOperationException($"Cannot place a card on top of stack {destination}");
 
-        var updatedTableau = TableauStacks.SetItem(destination, destinationStack.PlaceCard(FreeCell.Value));
+        var updatedTableau = TableauStacks.SetItem(destination, destinationStack.PlaceCard(FreeCell));
         return new BoardState(MajorArcanaStacks, MinorArcanaStacks, null, updatedTableau);
     }
 
@@ -122,7 +121,7 @@ public readonly struct BoardState : IEquatable<BoardState>
         if (sourceStack.TopCard == null)
             throw new InvalidOperationException("Cannot move cards from an empty stack");
         var destinationStack = TableauStacks[destination];
-        if (destinationStack.TopCard != null && !destinationStack.TopCard.Value.IsAdjacentTo(sourceStack.TopCard.Value))
+        if (destinationStack.TopCard != null && !destinationStack.TopCard.IsAdjacentTo(sourceStack.TopCard))
             throw new InvalidOperationException($"Cannot move cards from stack {source} to stack {destination}");
 
         var movedCard = sourceStack.TakeCard(out var updatedSourceStack);
@@ -143,7 +142,7 @@ public readonly struct BoardState : IEquatable<BoardState>
         if (sourceStack.TopCard == null)
             throw new InvalidOperationException("Cannot move cards from an empty stack");
         var destinationStack = TableauStacks[destination];
-        if (destinationStack.TopCard != null && !destinationStack.TopCard.Value.IsAdjacentTo(sourceStack.TopCard.Value))
+        if (destinationStack.TopCard != null && !destinationStack.TopCard.IsAdjacentTo(sourceStack.TopCard))
             throw new InvalidOperationException($"Cannot move cards from stack {source} to stack {destination}");
 
         var movedCards = sourceStack.TakeCards(out var updatedSourceStack);
@@ -158,7 +157,7 @@ public readonly struct BoardState : IEquatable<BoardState>
     public bool Equals(BoardState other) =>
         MajorArcanaStacks.Equals(other.MajorArcanaStacks)
         && MinorArcanaStacks.Equals(other.MinorArcanaStacks)
-        && Nullable.Equals(FreeCell, other.FreeCell)
+        && FreeCell == other.FreeCell
         && TableauStacks.Equals(other.TableauStacks);
 
     public override bool Equals(object? obj) => obj is BoardState other && Equals(other);

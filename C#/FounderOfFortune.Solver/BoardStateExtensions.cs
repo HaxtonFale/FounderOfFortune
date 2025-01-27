@@ -44,16 +44,16 @@ public static class BoardStateExtensions
         output.Append(leftCard);
         output.Append(middle);
         output.Append(rightCard);
-        var minorArcana = board.MinorArcanaStacks.Stacks.Select(s => PrintCard(s.TopCard).PadRight(4, ' '))
-            .Aggregate((s1, s2) => s1 + s2).PadLeft(28, ' ');
+        var minorArcana = board.MinorArcanaStacks.Stacks.Select(s => PrintCard(s.TopCard).PadRight(5, ' '))
+            .Aggregate((s1, s2) => s1 + s2).PadLeft(34, ' ');
         output.AppendLine(minorArcana);
-        output.AppendLine(string.Join("", Enumerable.Repeat('-', 44)));
+        output.AppendLine(string.Join("", Enumerable.Repeat('-', 51)));
         for (var height = 0; height < maxStackHeight; height++)
         {
             for (var stackIndex = 0; stackIndex < 11; stackIndex++)
             {
                 var stack = board.TableauStacks[stackIndex];
-                output.Append(stack.Cards.Count <= height ? "    " : PrintCard(stack.Cards[height]).PadRight(4, ' '));
+                output.Append(stack.Cards.Count <= height ? "     " : PrintCard(stack.Cards[height]).PadRight(5, ' '));
             }
 
             output.AppendLine();
@@ -63,13 +63,13 @@ public static class BoardStateExtensions
 
     private static string PrintCard(Card card)
     {
-        if (card.IsMajorArcana)
+        if (card is MajorArcana major)
         {
-            return card.AsMajorArcana.Value.ToString();
+            return major.ToString();
         }
         else
         {
-            var mi = card.AsMinorArcana;
+            var mi = (MinorArcana) card;
             var suit = mi.Suit switch
             {
                 Suit.Coins => "C",
@@ -87,7 +87,7 @@ public static class BoardStateExtensions
         {
             if (state.TableauStacks[from].Cards.IsEmpty) continue;
             if (state.TableauStacks[to].Cards.IsEmpty
-                || state.TableauStacks[to].TopCard!.Value.IsAdjacentTo(state.TableauStacks[from].TopCard!.Value))
+                || state.TableauStacks[to].TopCard!.IsAdjacentTo(state.TableauStacks[from].TopCard!))
                 yield return new MoveCard(from, to);
         }
 
@@ -101,11 +101,11 @@ public static class BoardStateExtensions
         }
         else
         {
-            var fcCard = state.FreeCell.Value;
+            var fcCard = state.FreeCell;
             foreach (var stack in Stacks)
             {
                 var stackCard = state.TableauStacks[stack].TopCard;
-                if (stackCard == null || stackCard.Value.IsAdjacentTo(fcCard)) yield return new RetrieveCard(stack);
+                if (stackCard == null || stackCard.IsAdjacentTo(fcCard)) yield return new RetrieveCard(stack);
             }
         }
     }

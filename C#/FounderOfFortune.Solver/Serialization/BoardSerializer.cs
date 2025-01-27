@@ -1,15 +1,18 @@
-﻿using FounderOfFortune.Game;
+﻿using System.Collections.Immutable;
+using FounderOfFortune.Game;
+using FounderOfFortune.Game.Collections;
 using FounderOfFortune.Game.Model;
 using FounderOfFortune.Solver.Model;
+using Microsoft.Extensions.Logging;
 using Solver.Core.Serialization;
 
 namespace FounderOfFortune.Solver.Serialization;
 
-public class BoardSerializer : IStateSerializer<BoardState, GameAction>
+internal class BoardSerializer(ILogger<BoardSerializer> logger) : IStateSerializer<BoardState, GameAction>
 {
-    private const byte Move = 3;
     private const byte Store = 1;
     private const byte Retrieve = 2;
+    private const byte Move = 3;
 
     public int SerializeStep(GameAction step, byte[] bytes)
     {
@@ -34,8 +37,6 @@ public class BoardSerializer : IStateSerializer<BoardState, GameAction>
 
     public int SerializeState(BoardState state, byte[] bytes)
     {
-        // 11 terminators + final card + the number of cards on the board
-        var bufferSize = 12 + state.TableauStacks.Select(s => s.Cards.Count).Sum();
         var index = 0;
         foreach (var stack in state.TableauStacks)
         {
@@ -47,56 +48,120 @@ public class BoardSerializer : IStateSerializer<BoardState, GameAction>
             bytes[index++] = 0;
         }
 
-        if (state.MajorArcanaStacks.Left == state.MajorArcanaStacks.Right && state.MajorArcanaStacks.Left.HasValue)
+        if (state.FreeCell != null)
         {
-            bytes[index] = CardToByte(state.MajorArcanaStacks.Left.Value);
+            bytes[index++] = CardToByte(state.FreeCell);
         }
         else
         {
-            bytes[index] = 0;
+            bytes[index++] = 0;
+        }
+
+        if (state.MajorArcanaStacks.Left == state.MajorArcanaStacks.Right && state.MajorArcanaStacks.Left != null)
+        {
+            bytes[index++] = CardToByte(state.MajorArcanaStacks.Left);
+        }
+        else
+        {
+            bytes[index++] = 0;
         }
         
-        return bufferSize;
+        return index;
     }
 
     public GameAction DeserializeStep(ReadOnlySpan<byte> buffer)
     {
         var from = (int) buffer[1];
-        var to = (int)buffer[2];
+        var to = (int) buffer[2];
         return buffer[0] switch
         {
             Move => new MoveCard(from, to),
             Store => new StoreCard(from),
             Retrieve => new RetrieveCard(to),
-            _ => throw new InvalidDataException($"Cannot deserialize byte {buffer[0]} into a valid step.")
+            _ => throw new InvalidDataException($"Cannot deserialize byte {buffer[0]:X} into a valid step.")
         };
     }
 
     public BoardState DeserializeState(ReadOnlySpan<byte> buffer)
     {
-        throw new NotImplementedException();
+        var tableau = ImmutableList<TableauStack>.Empty;
+        var bufPointer = 0;
+        for (var i = 0; i < 11; i++)
+        {
+            logger.LogTrace("Reading stack {Stack}", i + 1);
+            var currentStack = new List<Card>();
+            var currentByte = buffer[bufPointer++];
+            while (currentByte != 0)
+            {
+                currentStack.Add(ByteToCard(currentByte));
+                currentByte = buffer[bufPointer++];
+            }
+            tableau = tableau.Add(new TableauStack(currentStack.ToImmutableList()));
+        }
+
+        var freeCell = buffer[bufPointer] == 0 ? null : ByteToCard(buffer[bufPointer]);
+        bufPointer++;
+
+        var finalPromotedMajor = buffer[bufPointer] == 0 ? null : (MajorArcana)ByteToCard(buffer[bufPointer]);
+
+        var cardsInPlay = tableau.SelectMany(s => s.Cards).ToHashSet();
+        MajorArcanaStacks majorStacks;
+        if (finalPromotedMajor != null)
+        {
+            majorStacks = new MajorArcanaStacks(finalPromotedMajor, finalPromotedMajor);
+        }
+        else
+        {
+            var majorArcanaInPlay = cardsInPlay.Where(c => c is MajorArcana).Cast<MajorArcana>().ToHashSet();
+            var majorLeft = majorArcanaInPlay.Min()!;
+            var majorRight = majorArcanaInPlay.Max()!;
+            majorStacks = new MajorArcanaStacks(majorLeft.Value == MajorArcana.MinValue ? null : majorLeft - 1,
+                majorRight.Value == MajorArcana.MaxValue ? null : majorRight + 1);
+        }
+
+        var minorStacks = cardsInPlay.Where(c => c is MinorArcana).Cast<MinorArcana>().GroupBy(c => c.Suit)
+            .ToImmutableDictionary(g => g.Key, g => new MinorArcanaStack(g.Min()! - 1));
+
+        return new BoardState(majorStacks, new MinorArcanaStacks(minorStacks), freeCell, tableau);
     }
 
     public int SerializedStepLength => 3;
 
-    private static byte CardToByte(Card card)
+    private const int MajorArcanaLength = MajorArcana.MaxValue - MajorArcana.MinValue + 1;
+    private const int MinorArcanaSuitLength = MinorArcana.MaxValue - MinorArcana.MinValue + 1;
+    private const int MaxCardByteValue = MajorArcanaLength + MinorArcanaSuitLength * 4;
+
+    public byte CardToByte(Card card)
     {
-        if (card.IsMajorArcana)
+        var b = card switch
         {
-            var major = card.AsMajorArcana;
-            return (byte) (major.Value + 1);
+            MajorArcana major => (byte) (major.Value + 1),
+            MinorArcana minor => (byte) ((int) minor.Suit * MinorArcanaSuitLength + card.Value + MajorArcanaLength),
+            _ => throw new ArgumentException("Not a valid card type.", nameof(card))
+        };
+        logger.LogTrace("Card {Card} written as byte {Byte:X2}", card, b);
+        return b;
+    }
+
+    public Card ByteToCard(byte b)
+    {
+        if (b is 0 or > MaxCardByteValue) throw new InvalidDataException($"Cannot convert byte {b} to card.");
+
+        Card card;
+        if (b <= MajorArcanaLength)
+        {
+            card = new MajorArcana(b - 1);
         }
         else
         {
-            var offset = MajorArcana.MaxValue + 1;
-            const int suitLength = MinorArcana.MaxValue - MinorArcana.MinValue + 1;
-            var minor = card.AsMinorArcana;
-            return (byte) ((int) minor.Suit * suitLength + card.Value + offset);
-        }
-    }
 
-    private static Card ByteToCard(byte b)
-    {
-        throw new NotImplementedException();
+            var minorArcanaValue = b - MajorArcanaLength - 1;
+            var suit = (Suit) (minorArcanaValue / MinorArcanaSuitLength);
+            var value = minorArcanaValue % MinorArcanaSuitLength + 1;
+            card = new MinorArcana(suit, value);
+        }
+
+        logger.LogTrace("Byte {Byte:X2} read as card {Card}", b, card);
+        return card;
     }
 }

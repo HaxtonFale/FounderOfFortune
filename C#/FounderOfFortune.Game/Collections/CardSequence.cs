@@ -6,7 +6,6 @@ namespace FounderOfFortune.Game.Collections;
 public class CardSequence(Card initialCard, int finalCardValue) : IReadOnlyList<Card>
 {
     private int Direction => Math.Sign(finalCardValue - initialCard.Value);
-    private bool IsMajorArcana => initialCard.IsMajorArcana;
 
     #region IReadOnlyList
 
@@ -21,7 +20,7 @@ public class CardSequence(Card initialCard, int finalCardValue) : IReadOnlyList<
         }
     }
 
-    private Card CreateAtOffset(int offset) => IsMajorArcana ? new Card(initialCard.AsMajorArcana + offset) : new Card(initialCard.AsMinorArcana + offset);
+    private Card CreateAtOffset(int offset) => initialCard + offset;
 
     IEnumerator IEnumerable.GetEnumerator()
     {

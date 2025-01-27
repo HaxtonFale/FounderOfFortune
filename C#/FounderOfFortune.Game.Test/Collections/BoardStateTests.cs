@@ -65,9 +65,9 @@ public class BoardStateTests
 
         // Assert
         board.TableauStacks.Should().AllSatisfy(s => s.Cards.Should().BeEmpty());
-        card.IsMajorArcana.Should()
-            .Imply(board.MajorArcanaStacks.Left == card || board.MajorArcanaStacks.Right == card);
-        card.IsMinorArcana.Should().Imply(board.MinorArcanaStacks.Stacks.Select(s => new Card(s.TopCard)).Contains(card));
+        (card is MajorArcana).Should()
+            .Imply(board.MajorArcanaStacks.Left == card as MajorArcana || board.MajorArcanaStacks.Right == card as MajorArcana);
+        (card is MinorArcana).Should().Imply(board.MinorArcanaStacks.Stacks.Select(s =>s.TopCard).Contains(card));
     }
 
     [Fact]
@@ -171,8 +171,8 @@ public class BoardStateTests
         var newBoard = board.MoveSingleCard(9, 10);
 
         // Assert
-        newBoard.TableauStacks[9].TopCard.Should().Be(new Card(new MinorArcana(Suit.Goblets, 6)));
-        newBoard.TableauStacks[10].TopCard.Should().Be(new Card(new MinorArcana(Suit.Goblets, 7)));
+        newBoard.TableauStacks[9].TopCard.Should().Be(new MinorArcana(Suit.Goblets, 6));
+        newBoard.TableauStacks[10].TopCard.Should().Be(new MinorArcana(Suit.Goblets, 7));
     }
 
     #endregion
@@ -248,8 +248,8 @@ public class BoardStateTests
         var newBoard = board.MoveCardSequence(9, 10);
 
         // Assert
-        newBoard.TableauStacks[9].TopCard.Should().Be(new Card(new MajorArcana(5)));
-        newBoard.TableauStacks[10].TopCard.Should().Be(new Card(new MinorArcana(Suit.Goblets, 5)));
+        newBoard.TableauStacks[9].TopCard.Should().Be(new MajorArcana(5));
+        newBoard.TableauStacks[10].TopCard.Should().Be(new MinorArcana(Suit.Goblets, 5));
     }
 
     #endregion
@@ -285,7 +285,7 @@ public class BoardStateTests
     public void StoresCardCorrectly()
     {
         // Arrange
-        var card = new Card(new MajorArcana(5));
+        var card = new MajorArcana(5);
         const int source = 3;
         var stack = new TableauStack(ImmutableList<Card>.Empty.Add(card));
         var allStacks = EmptyStacks.SetItem(source, stack);
@@ -331,8 +331,8 @@ public class BoardStateTests
     public void RetrievingCardToInvalidStackThrows()
     {
         // Arrange
-        var storedCard = new Card(new MinorArcana(Suit.Coins, 5));
-        var stackCard = new Card(new MinorArcana(Suit.Swords, 4));
+        var storedCard = new MinorArcana(Suit.Coins, 5);
+        var stackCard = new MinorArcana(Suit.Swords, 4);
         const int destination = 3;
         var stack = new TableauStack(ImmutableList<Card>.Empty.Add(stackCard));
         var allStacks = EmptyStacks.SetItem(destination, stack);
@@ -347,7 +347,7 @@ public class BoardStateTests
     public void RetrievesOntoEmptyStack()
     {
         // Arrange
-        var card = new Card(new MinorArcana(Suit.Coins, 5));
+        var card = new MinorArcana(Suit.Coins, 5);
         const int destination = 3;
         var board = new BoardState(new MajorArcanaStacks(), new MinorArcanaStacks(), card, EmptyStacks);
 
@@ -363,8 +363,8 @@ public class BoardStateTests
     public void RetrievesOntoValidStack()
     {
         // Arrange
-        var storedCard = new Card(new MinorArcana(Suit.Coins, 5));
-        var stackCard = new Card(new MinorArcana(Suit.Coins, 4));
+        var storedCard = new MinorArcana(Suit.Coins, 5);
+        var stackCard = new MinorArcana(Suit.Coins, 4);
         const int destination = 3;
         var stack = new TableauStack(ImmutableList<Card>.Empty.Add(stackCard));
         var allStacks = EmptyStacks.SetItem(destination, stack);

@@ -3,13 +3,13 @@
 /// <summary>
 /// Represents one of the minor arcana: cards valued from 1 to 13 (with Jack, Queen and King as the last three values) with one of the four <see cref="Suit"/>s.
 /// </summary>
-public readonly struct MinorArcana : IComparable<MinorArcana>, IComparable, IEquatable<MinorArcana>
+public class MinorArcana : Card, IEquatable<MinorArcana>, IComparable<MinorArcana>, IComparable
 {
     public const int MinValue = 1;
     public const int MaxValue = 13;
 
     public Suit Suit { get; }
-    public int Value { get; }
+    public override int Value { get; }
 
     public MinorArcana(Suit suit, int value) {
         if (value is < MinValue or > MaxValue)
@@ -29,67 +29,71 @@ public readonly struct MinorArcana : IComparable<MinorArcana>, IComparable, IEqu
         return $"{number} of {Suit}";
     }
 
-    #region IComparable
+    public override string FullName => ToString();
 
-    public int CompareTo(MinorArcana other) {
-        if (other.Suit != Suit)
-            throw new ArgumentException("Cards must be of the same suit");
-        return Value.CompareTo(other.Value);
-    }
+    public override bool IsAdjacentTo(Card other) => other is MinorArcana minor && minor.Suit == Suit && Math.Abs(minor.Value - Value) == 1;
 
-    public int CompareTo(object? obj) {
-        if (obj is null) return 1;
-        return obj is MinorArcana other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(MinorArcana)}");
-    }
-
-    public static bool operator <(MinorArcana left, MinorArcana right) {
-        return left.CompareTo(right) < 0;
-    }
-
-    public static bool operator >(MinorArcana left, MinorArcana right) {
-        return left.CompareTo(right) > 0;
-    }
-
-    public static bool operator <=(MinorArcana left, MinorArcana right) {
-        return left.CompareTo(right) <= 0;
-    }
-
-    public static bool operator >=(MinorArcana left, MinorArcana right) {
-        return left.CompareTo(right) >= 0;
-    }
-
-    #endregion
-
-    #region IEquatable
-
-    public bool Equals(MinorArcana other) {
-        return Suit == other.Suit && Value == other.Value;
-    }
-
-    public override bool Equals(object? obj) {
-        return obj is MinorArcana other && Equals(other);
-    }
-
-    public override int GetHashCode() {
-        unchecked {
-            return ((int)Suit * 397) ^ Value;
-        }
-    }
-
-    public static bool operator ==(MinorArcana left, MinorArcana right) {
-        return left.Equals(right);
-    }
-
-    public static bool operator !=(MinorArcana left, MinorArcana right) {
-        return !left.Equals(right);
-    }
-
-    #endregion
+    protected override Card ChangeBy(int offset) => new MinorArcana(Suit, Value + offset);
 
     #region Arithmetic operators
 
     public static MinorArcana operator +(MinorArcana card, int change) => new(card.Suit, card.Value + change);
     public static MinorArcana operator -(MinorArcana card, int change) => new(card.Suit, card.Value - change);
+
+    #endregion
+
+    #region Equality members
+
+    public bool Equals(MinorArcana? other)
+    {
+        if (other is null) return false;
+        if (ReferenceEquals(this, other)) return true;
+
+        return Suit == other.Suit && Value == other.Value;
+    }
+
+    public override bool Equals(object? obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+
+        return obj.GetType() == GetType() && Equals((MinorArcana) obj);
+    }
+
+    public override int GetHashCode() => HashCode.Combine((int) Suit, Value);
+
+    public static bool operator ==(MinorArcana? left, MinorArcana? right) => Equals(left, right);
+
+    public static bool operator !=(MinorArcana? left, MinorArcana? right) => !Equals(left, right);
+
+    #endregion
+
+    #region Relational members
+
+    public int CompareTo(MinorArcana? other)
+    {
+        if (ReferenceEquals(this, other)) return 0;
+        if (other is null) return 1;
+
+        var suitComparison = Suit.CompareTo(other.Suit);
+        return suitComparison != 0 ? suitComparison : Value.CompareTo(other.Value);
+    }
+
+    public int CompareTo(object? obj)
+    {
+        if (obj is null) return 1;
+        if (ReferenceEquals(this, obj)) return 0;
+
+        return obj is MinorArcana other ? CompareTo(other) : throw new ArgumentException($"Object must be of type {nameof(MinorArcana)}");
+    }
+
+    public static bool operator <(MinorArcana? left, MinorArcana? right) => Comparer<MinorArcana>.Default.Compare(left, right) < 0;
+
+    public static bool operator >(MinorArcana? left, MinorArcana? right) => Comparer<MinorArcana>.Default.Compare(left, right) > 0;
+
+    public static bool operator <=(MinorArcana? left, MinorArcana? right) => Comparer<MinorArcana>.Default.Compare(left, right) <= 0;
+
+    public static bool operator >=(MinorArcana? left, MinorArcana? right) => Comparer<MinorArcana>.Default.Compare(left, right) >= 0;
 
     #endregion
 }

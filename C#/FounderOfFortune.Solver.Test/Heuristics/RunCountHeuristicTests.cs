@@ -3,7 +3,7 @@ using FounderOfFortune.Game;
 using FounderOfFortune.Game.Collections;
 using FounderOfFortune.Game.Model;
 
-namespace FounderOfFortune.Solver.Test;
+namespace FounderOfFortune.Solver.Test.Heuristics;
 
 public class RunCountHeuristicTests : HeuristicTestsBase
 {
@@ -11,7 +11,7 @@ public class RunCountHeuristicTests : HeuristicTestsBase
     public void EmptyBoardReturnsZero()
     {
         // Act
-        var value = Heuristics.RunCount(EmptyBoard);
+        var value = Solver.Heuristics.RunCount(EmptyBoard);
 
         // Assert
         value.Should().Be(0);
@@ -25,7 +25,7 @@ public class RunCountHeuristicTests : HeuristicTestsBase
         var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.RunCount(board);
+        var value = Solver.Heuristics.RunCount(board);
 
         // Assert
         value.Should().Be(1);
@@ -40,7 +40,7 @@ public class RunCountHeuristicTests : HeuristicTestsBase
         var solution = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.RunCount(solution);
+        var value = Solver.Heuristics.RunCount(solution);
 
         // Assert
         value.Should().Be(1);
@@ -56,7 +56,7 @@ public class RunCountHeuristicTests : HeuristicTestsBase
         var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.RunCount(board);
+        var value = Solver.Heuristics.RunCount(board);
 
         // Assert
         value.Should().Be(2);
@@ -70,7 +70,7 @@ public class RunCountHeuristicTests : HeuristicTestsBase
         var board = new BoardState(stacks);
 
         // Act
-        var value = Heuristics.RunCount(board);
+        var value = Solver.Heuristics.RunCount(board);
 
         // Assert
         value.Should().Be(stacks.Count);

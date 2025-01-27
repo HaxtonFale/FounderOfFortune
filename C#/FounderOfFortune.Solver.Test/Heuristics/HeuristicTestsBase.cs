@@ -2,7 +2,7 @@
 using FounderOfFortune.Game;
 using System.Collections.Immutable;
 
-namespace FounderOfFortune.Solver.Test;
+namespace FounderOfFortune.Solver.Test.Heuristics;
 
 public class HeuristicTestsBase
 {

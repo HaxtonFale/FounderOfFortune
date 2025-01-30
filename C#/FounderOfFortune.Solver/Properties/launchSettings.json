@@ -6,7 +6,7 @@
     },
     "solve": {
       "commandName": "Project",
-      "commandLineArgs": "solve --verbose --serialize --timeout 3"
+      "commandLineArgs": "solve -v Debug"
     },
     "view": {
       "commandName": "Project",

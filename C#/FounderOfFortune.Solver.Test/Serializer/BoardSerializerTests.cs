@@ -1,5 +1,7 @@
 ﻿using FounderOfFortune.Game.Model;
 using FounderOfFortune.Solver.Serialization;
+using Microsoft.Extensions.Logging;
+using Serilog;
 
 namespace FounderOfFortune.Solver.Test.Serializer;
 
@@ -17,13 +19,26 @@ public class BoardSerializerTests
             return testData;
         }
     }
+    
+    private readonly BoardSerializer _boardSerializer;
+
+    public BoardSerializerTests()
+    {
+        Log.Logger = new LoggerConfiguration()
+            .MinimumLevel.Debug()
+            .WriteTo.Debug()
+            .CreateLogger();
+        var factory = new LoggerFactory()
+            .AddSerilog(Log.Logger, true);
+        _boardSerializer = new BoardSerializer(factory.CreateLogger<BoardSerializer>());
+    }
 
     [Theory]
     [MemberData(nameof(AllMajorArcana))]
     public void MajorArcanaSerializeCorrectly(MajorArcana card)
     {
         // Act
-        var cardByte = BoardSerializer.CardToByte(card);
+        var cardByte = _boardSerializer.CardToByte(card);
 
         // Assert
         cardByte.Should().Be((byte)(card.Value + 1));
@@ -46,7 +61,7 @@ public class BoardSerializerTests
     public void MajorArcanaDeserializeCorrectly(byte cardByte)
     {
         // Act
-        var card = BoardSerializer.ByteToCard(cardByte);
+        var card = _boardSerializer.ByteToCard(cardByte);
 
         // Assert
         card.Should().BeOfType<MajorArcana>();
@@ -72,7 +87,7 @@ public class BoardSerializerTests
     public void MinorArcanaSerializeCorrectly(MinorArcana card)
     {
         // Act
-        var cardByte = BoardSerializer.CardToByte(card);
+        var cardByte = _boardSerializer.CardToByte(card);
 
         // Assert
         cardByte.Should().Be((byte) (SuitLength * (int) card.Suit + card.Value + Offset));
@@ -94,15 +109,16 @@ public class BoardSerializerTests
     public void MinorArcanaDeserializeCorrectly(byte cardByte)
     {
         // Arrange
-        var expectedSuit = (Suit) ((cardByte - Offset) / SuitLength);
-        var expectedValue = (cardByte - Offset) % SuitLength + 1;
+        var minorArcanaByte = cardByte - Offset - 1;
+        var expectedValue = minorArcanaByte % SuitLength + 1;
+        var expectedSuit = minorArcanaByte / SuitLength;
+        var expectedCard = new MinorArcana((Suit) expectedSuit, expectedValue);
 
         // Act
-        var card = BoardSerializer.ByteToCard(cardByte);
+        var card = _boardSerializer.ByteToCard(cardByte);
 
         // Assert
-        card.Should().BeOfType<MinorArcana>().Which.Suit.Should().Be(expectedSuit);
-        card.Value.Should().Be(expectedValue);
+        card.Should().BeOfType<MinorArcana>().And.BeEquivalentTo(expectedCard);
     }
 
     [Theory]
@@ -111,10 +127,35 @@ public class BoardSerializerTests
     public void DeserializationReversesSerialization(Card card)
     {
         // Act
-        var cardByte = BoardSerializer.CardToByte(card);
-        var newCard = BoardSerializer.ByteToCard(cardByte);
+        var cardByte = _boardSerializer.CardToByte(card);
+        var newCard = _boardSerializer.ByteToCard(cardByte);
 
         // Assert
         newCard.Should().Be(card);
+    }
+
+    public static TheoryData<byte> InvalidBytes
+    {
+        get
+        {
+            var testData = new TheoryData<byte> { 0 };
+            const int minValue = 4 * MinorArcana.MaxValue + MajorArcana.MaxValue + 2;
+            for (var i = minValue; i <= byte.MaxValue; i++)
+            {
+                testData.Add((byte)i);
+            }
+            return testData;
+        }
+    }
+
+    [Theory]
+    [MemberData(nameof(InvalidBytes))]
+    public void InvalidBytesCauseException(byte cardByte)
+    {
+        // Arrange
+        var act = () => _boardSerializer.ByteToCard(cardByte);
+
+        // Act & Assert
+        act.Should().Throw<InvalidDataException>();
     }
 }

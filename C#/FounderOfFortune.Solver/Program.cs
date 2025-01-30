@@ -1,4 +1,5 @@
 ﻿using System.Collections.Immutable;
+using System.IO.Abstractions;
 using Cocona;
 using FounderOfFortune.Game;
 using FounderOfFortune.Game.Collections;
@@ -9,21 +10,16 @@ using FounderOfFortune.Solver.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Serilog;
-using Serilog.Core;
-using Serilog.Events;
 using Solver.Core;
+using Solver.Core.Cache;
 using Solver.Core.Serialization;
 
 using MSLogger = Microsoft.Extensions.Logging.ILogger;
 
-const string dumpFilePath = @"D:\FF solving\dump.bin";
-
 var builder = CoconaApp.CreateBuilder(args);
-var logLevelSwitch = new LoggingLevelSwitch();
-builder.Host.UseSerilog((context, _, config) =>
+builder.Host.UseSerilog((context, config) =>
 {
-    config.ReadFrom.Configuration(context.Configuration)
-        .MinimumLevel.ControlledBy(logLevelSwitch);
+    config.ReadFrom.Configuration(context.Configuration);
 });
 
 builder.Services
@@ -33,14 +29,13 @@ builder.Services
         return loggerFactory.CreateLogger("Founder");
     })
     .AddSingleton<IStateSerializer<BoardState, GameAction>, BoardSerializer>()
-    .AddSingleton<SolutionSerializer<BoardState, GameAction>>()
-    .AddSingleton<Visualizer>()
-    .AddSingleton(Heuristics.DepthAndRuns);
+    .AddSingleton<IFileSystem, FileSystem>()
+    .AddDiskCache<BoardState, GameAction>();
 
 var app = builder.Build();
-app.AddCommand("solve", async (CoconaAppContext ctx, SolutionSerializer<BoardState, GameAction> serializer, MSLogger logger,
-    [Option('s')] bool singleCard, [Option] bool serialize, [Option] int? timeout,
-    [Option('v')] LogEventLevel verbosity = LogEventLevel.Information) =>
+app.AddCommand("solve", (CoconaAppContext ctx, ISolutionCache<BoardState, GameAction> cache,
+    MSLogger logger,
+    [Option('s')] bool singleCard, [Option] int? timeout) =>
 {
     const string cards = """
  C7,19,S6,S11,C6,17,4
@@ -55,11 +50,9 @@ app.AddCommand("solve", async (CoconaAppContext ctx, SolutionSerializer<BoardSta
  C3,2,S2,G2,W13,S12,C12
  S3,15,C8,G4,G6,W6,5
  """;
-     logLevelSwitch.MinimumLevel = verbosity;
-
-    Solver.Core.Base.Solver<BoardState, GameAction> solver = new AStarSolver<BoardState, GameAction, int>(board => board.GetValidActions(),
-        (board, action) => board.PerformAction(action, singleCard), board => board.IsComplete(),
-        Heuristics.DepthAndRuns);
+    Solver.Core.Base.Solver<BoardState, GameAction> solver = new AStarSolver<BoardState, GameAction, int>(
+        board => board.GetValidActions(), (board, action) => board.PerformAction(action, singleCard),
+        board => board.IsComplete(), Heuristics.DepthAndRuns, cache);
 
     var board = GenerateBoardState(cards);
     Solution<BoardState, GameAction>? solution;
@@ -75,27 +68,6 @@ app.AddCommand("solve", async (CoconaAppContext ctx, SolutionSerializer<BoardSta
     }
 
     logger.LogInformation(solution == null ? "No solution found." : "Solution found.");
-    if (serialize)
-    {
-        await using var stream = new FileStream(dumpFilePath, FileMode.Create);
-        await serializer.Serialize(solver, stream, ctx.CancellationToken);
-    }
-
-    return Task.CompletedTask;
-});
-app.AddCommand("view", async (CoconaAppContext ctx, Visualizer visualizer, MSLogger logger,
-    [Option('v')] LogEventLevel verbosity = LogEventLevel.Information) =>
-{
-    logLevelSwitch.MinimumLevel = verbosity;
-
-    var start = DateTime.Now;
-    await visualizer.Load(dumpFilePath, ctx.CancellationToken);
-    var end = DateTime.Now;
-    logger.LogInformation("Solver dump loaded in {Seconds} seconds.", (end - start).TotalSeconds);
-
-    visualizer.InteractiveSession();
-
-    return Task.CompletedTask;
 });
 
 await app.RunAsync();

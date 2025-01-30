@@ -18,6 +18,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FounderOfFortune.Solver.Tes
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Solver.Core", "..\Solver.Core\Solver.Core\Solver.Core.csproj", "{4517A100-788F-4004-A908-B6BE884A8AE0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Solver.Core.Test", "..\Solver.Core\Solver.Core.Test\Solver.Core.Test.csproj", "{CEDE3CBB-4F60-40F9-8AE5-E4AA46363630}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solver", "Solver", "{8ADAD1FC-CB42-48A3-B3D7-F19C288D4C4A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,11 +48,19 @@ Global
 		{4517A100-788F-4004-A908-B6BE884A8AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4517A100-788F-4004-A908-B6BE884A8AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4517A100-788F-4004-A908-B6BE884A8AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CEDE3CBB-4F60-40F9-8AE5-E4AA46363630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CEDE3CBB-4F60-40F9-8AE5-E4AA46363630}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CEDE3CBB-4F60-40F9-8AE5-E4AA46363630}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CEDE3CBB-4F60-40F9-8AE5-E4AA46363630}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2D53327D-E7B6-4E8F-8DBD-8917A158BE5C}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4517A100-788F-4004-A908-B6BE884A8AE0} = {8ADAD1FC-CB42-48A3-B3D7-F19C288D4C4A}
+		{CEDE3CBB-4F60-40F9-8AE5-E4AA46363630} = {8ADAD1FC-CB42-48A3-B3D7-F19C288D4C4A}
 	EndGlobalSection
 EndGlobal

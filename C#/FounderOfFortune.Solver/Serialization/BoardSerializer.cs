@@ -133,12 +133,22 @@ internal class BoardSerializer(ILogger<BoardSerializer> logger) : IStateSerializ
 
     public byte CardToByte(Card card)
     {
-        var b = card switch
+        byte b;
+        if (card is MajorArcana major)
         {
-            MajorArcana major => (byte) (major.Value + 1),
-            MinorArcana minor => (byte) ((int) minor.Suit * MinorArcanaSuitLength + card.Value + MajorArcanaLength),
-            _ => throw new ArgumentException("Not a valid card type.", nameof(card))
-        };
+            logger.LogTrace("Card is a Major Arcana ({Card})", card);
+            b = (byte) (major.Value + 1);
+        } else if (card is MinorArcana minor)
+        {
+            logger.LogTrace("Card is a Minor Arcana ({Card})", card);
+            var suit = (int) minor.Suit;
+            logger.LogTrace("Suit value: {suit}", suit);
+            b = (byte)(suit * MinorArcanaSuitLength + minor.Value + MajorArcanaLength);
+        }
+        else
+        {
+            throw new ArgumentException("Not a valid card type", nameof(card));
+        }
         logger.LogTrace("Card {Card} written as byte {Byte:X2}", card, b);
         return b;
     }
@@ -147,18 +157,21 @@ internal class BoardSerializer(ILogger<BoardSerializer> logger) : IStateSerializ
     {
         if (b is 0 or > MaxCardByteValue) throw new InvalidDataException($"Cannot convert byte {b} to card.");
 
+        logger.LogTrace("Byte {Byte:X2} read as Card", b);
         Card card;
         if (b <= MajorArcanaLength)
         {
-            card = new MajorArcana(b - 1);
+            var majorArcanaValue = b - 1;
+            logger.LogTrace("Card is a Major Arcana with value {Value}", majorArcanaValue);
+            card = new MajorArcana(majorArcanaValue);
         }
         else
         {
-
             var minorArcanaValue = b - MajorArcanaLength - 1;
-            var suit = (Suit) (minorArcanaValue / MinorArcanaSuitLength);
             var value = minorArcanaValue % MinorArcanaSuitLength + 1;
-            card = new MinorArcana(suit, value);
+            var suit = minorArcanaValue / MinorArcanaSuitLength;
+            logger.LogTrace("Card is a Minor Arcana with value {Value}", value);
+            card = new MinorArcana((Suit) suit, value);
         }
 
         logger.LogTrace("Byte {Byte:X2} read as card {Card}", b, card);
